@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
-
-app.use(express.json());
-
+const bodyParser = require("body-parser");
+// app.use(express.json());
+app.use(bodyParser.json());
 const usersRouter = require("./routes/users.js");
 app.use("/users", usersRouter);
 
@@ -20,6 +20,9 @@ app.use("/flights", flightsRouter);
 
 const ticketsRouter = require("./routes/tickets.js");
 app.use("/tickets", ticketsRouter);
+
+const authRouter = require("./routes/auth.js");
+app.use("/auth", authRouter);
 
 app.listen(3000, () => {
   console.log("Server running on port 3000");

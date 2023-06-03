@@ -3,6 +3,8 @@ const router = express.Router();
 const { pool } = require("../db.js");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const secretKey = process.env.SECRETKEY;
+const jwt = require("jsonwebtoken");
 
 // register
 router.post("/", async (req, res) => {
@@ -34,12 +36,17 @@ router.post("/", async (req, res) => {
       }
       // save the user in DB
       try {
-        const savedUser = await pool.query(
-          "INSERT INTO users (email, salt, password) VALUES ($1, $2, $3)",
-          [user.email, salt, hash]
-        );
+        // Generate a JWT token
+        const token = jwt.sign({ email: user.email }, secretKey, {
+          expiresIn: "1h",
+        });
 
-        res.status(201).json({ message: "User registered successfully." });
+        const savedUser = await pool.query(
+          "INSERT INTO users (email, salt, password, jwt) VALUES ($1, $2, $3, $4)",
+          [user.email, salt, hash, token]
+        );
+        // Return the token as the response
+        res.json({ token });
       } catch (err) {
         res.status(500).json({ message: err.message });
       }
