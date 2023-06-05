@@ -13,105 +13,28 @@ import {
   IconButton,
   Menu,
   Autocomplete,
+  Snackbar,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import PeopleIcon from "@mui/icons-material/People";
 import InputAdornment from "@mui/material/InputAdornment";
+import CloseIcon from "@mui/icons-material/Close";
 
 function SearchForm() {
-  const validateInputs = async () => {
-    const result =
-      source != "" &&
-      destination != "" &&
-      sourceDate != "" &&
-      destinationDate != "" &&
-      (passengers.adults != 0 ||
-        passengers.teenagers != 0 ||
-        passengers.kids != 0 ||
-        passengers.toddlers != 0);
-
-    if (result) {
-      return true;
-    }
-    return false;
-  };
-
-  const formatDate = (date) => {
-    const formattedDate = date["$y"] + "-" + date["$M"] + "-" + date["$D"];
-    return formattedDate;
-  };
-
   const [locationsData, setLocationsData] = useState(null);
   const [flightsData, setFlightsData] = useState(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-  useEffect(() => {
-    // Fetch data when the component mounts
-    airportData();
-  }, []);
-
-  const airportData = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:3000/airports", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json", // Example header
-        },
-      });
-      const jsonData = await response.json();
-      setLocationsData(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  const searchFlights = async () => {
-    try {
-      const result = validateInputs();
-      if (!result) {
-        console.log("Fill the inputs.");
-        return;
-      }
-
-      const inputData = {
-        source: source,
-        destination: destination,
-        sourceDate: formatDate(sourceDate),
-        destinationDate: formatDate(destinationDate),
-        numberOfPassengers:
-          passengers.adults +
-          passengers.teenagers +
-          passengers.kids +
-          passengers.toddlers,
-      };
-
-      const response = await fetch("http://localhost:3000/flights", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(inputData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Error fetching data: " + response.status);
-      }
-
-      const jsonData = await response.json();
-      setFlightsData(jsonData);
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  const passengerNames = ["adults", "teenagers", "kids", "toddlers"];
-
-  const navigate = useNavigate();
-  const [source, setSource] = useState();
-  const [destination, setDestination] = useState();
   const [sourceDate, setSourceDate] = useState();
   const [destinationDate, setDestinationDate] = useState();
   const [dateError, setDateError] = useState(false);
+
+  const [source, setSource] = useState("");
+  const [destination, setDestination] = useState("");
+  const [autocompleteOne, setAutocompleteOne] = useState(null);
+  const [autocompleteTwo, setAutocompleteTwo] = useState(null);
 
   const handleSourceDateChange = (date) => {
     if (date < new Date()) {
@@ -131,22 +54,20 @@ function SearchForm() {
     }
   };
 
-  const [autocompeleteOne, setAutocompleteOne] = useState(null);
-  const handleAutocompleteOne = (v) => {
-    setAutocompleteOne(v);
+  const handleAutocompleteOne = (event, value) => {
+    setAutocompleteOne(value);
   };
 
-  const [autocompeleteTwo, setAutocompleteTwo] = useState(null);
-  const handleAutocompleteTwo = (v) => {
-    setAutocompleteTwo(v);
+  const handleAutocompleteTwo = (event, value) => {
+    setAutocompleteTwo(value);
   };
 
-  const handleSourceChange = (v) => {
-    setSource(v);
+  const handleSourceChange = (event, newValue) => {
+    setSource(newValue);
   };
 
-  const handleDestinationChange = (v) => {
-    setDestination(v);
+  const handleDestinationChange = (event, newValue) => {
+    setDestination(newValue);
   };
 
   const [passengers, setPassengers] = useState({
@@ -179,6 +100,139 @@ function SearchForm() {
       };
     });
   };
+
+  const handleAlertOn = () => {
+    setIsAlertOpen(true);
+  };
+
+  const handleAlertClose = () => {
+    setIsAlertOpen(false);
+  };
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch data when the component mounts
+    airportData();
+  }, []);
+
+  const validateInputs = async () => {
+    const result =
+      source != "" &&
+      destination != "" &&
+      sourceDate != "" &&
+      destinationDate != "" &&
+      (passengers.adults != 0 ||
+        passengers.teenagers != 0 ||
+        passengers.kids != 0 ||
+        passengers.toddlers != 0);
+
+    if (result) {
+      return true;
+    }
+    return false;
+  };
+
+  const navigateToFlights = (jsonData) => {
+    navigate("/flights", { state: { jsonData } });
+  };
+
+  const airportData = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:3000/airports", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json", // Example header
+        },
+      });
+      const jsonData = await response.json();
+      setLocationsData(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const formatDate = (date) => {
+    const newDate = {
+      year: date["$y"],
+      month: date["$M"],
+      day: date["$D"],
+    };
+
+    if (newDate.month < 10) {
+      newDate.month = "0" + (date["$M"] + 1);
+    }
+
+    const formattedDate =
+      newDate.year + "-" + newDate.month + "-" + newDate.day;
+
+    return formattedDate;
+  };
+
+  const searchFlights = async () => {
+    try {
+      const result = validateInputs();
+      if (!result) {
+        console.log("Fill the inputs.");
+        return;
+      }
+
+      const inputData = {
+        source: source,
+        destination: destination,
+        sourceDate: formatDate(sourceDate),
+        destinationDate: formatDate(destinationDate),
+        numberOfPassengers:
+          passengers.adults +
+          passengers.teenagers +
+          passengers.kids +
+          passengers.toddlers,
+      };
+
+      console.log("Wysyłane dane: ");
+      console.log(inputData);
+
+      const response = await fetch("http://localhost:3000/flights", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputData),
+      });
+
+      if (!response.ok) {
+        handleAlertOn();
+
+        throw new Error("Error fetching data: " + response.status);
+      }
+
+      const jsonData = await response.json();
+      setFlightsData(jsonData);
+      navigateToFlights(jsonData);
+    } catch (error) {
+      handleAlertOn();
+
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const action = (
+    <>
+      <Button color="primary" size="small" onClick={handleAlertClose}>
+        Zamknij
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleAlertClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </>
+  );
+
+  const passengerNames = ["adults", "teenagers", "kids", "toddlers"];
 
   const [anchorEl, setAnchorEl] = useState(0);
 
@@ -216,14 +270,10 @@ function SearchForm() {
                 <Autocomplete
                   options={locationsData}
                   getOptionLabel={(option) => option.nazwa}
-                  value={autocompeleteOne}
+                  value={autocompleteOne}
                   inputValue={source}
-                  onChange={(event, newValue) => {
-                    handleAutocompleteOne(newValue);
-                  }}
-                  onInputChange={(event, newInputValue) => {
-                    handleSourceChange(newInputValue);
-                  }}
+                  onChange={handleAutocompleteOne}
+                  onInputChange={handleSourceChange}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -244,14 +294,10 @@ function SearchForm() {
                 <Autocomplete
                   options={locationsData}
                   getOptionLabel={(option) => option.nazwa}
-                  value={autocompeleteTwo}
+                  value={autocompleteTwo}
                   inputValue={destination}
-                  onChange={(event, newValue) => {
-                    handleAutocompleteTwo(newValue);
-                  }}
-                  onInputChange={(event, newInputValue) => {
-                    handleDestinationChange(newInputValue);
-                  }}
+                  onChange={handleAutocompleteTwo}
+                  onInputChange={handleDestinationChange}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -366,6 +412,18 @@ function SearchForm() {
               </Button>
             </Grid>
           </Grid>
+          {isAlertOpen ? (
+            <Snackbar
+              open={isAlertOpen}
+              autoHideDuration={2000}
+              onClose={handleAlertClose}
+              message="Brak wyszukanych lotów."
+              action={action}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            />
+          ) : (
+            ""
+          )}
         </Box>
       </Container>
     </LocalizationProvider>

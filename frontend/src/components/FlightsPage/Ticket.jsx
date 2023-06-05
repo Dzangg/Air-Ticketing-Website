@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
+import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import DialogContentText from "@mui/material/DialogContentText";
 import { useMediaQuery, useTheme } from "@mui/material";
 import StepperDialog from "./StepperDialog";
 export default function Ticket(props) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -17,14 +17,15 @@ export default function Ticket(props) {
   };
 
   const handleClose = () => {
+    props.handleClose();
     setOpen(false);
   };
+  useEffect(() => {
+    handleClickOpen();
+  }, []);
 
   return (
     <>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Open responsive dialog
-      </Button>
       <Dialog
         fullScreen={fullScreen}
         open={open}
@@ -32,7 +33,7 @@ export default function Ticket(props) {
         aria-labelledby="responsive-dialog-title"
       >
         <DialogTitle id="responsive-dialog-title">
-          {"Rezerwacja lotu nr: "} {props.flightId}
+          {"Rezerwacja lotu nr: "} {props.flightInfo.kod_lotu}
         </DialogTitle>
         <DialogContent>
           <StepperDialog />

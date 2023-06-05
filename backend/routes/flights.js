@@ -32,31 +32,44 @@ router.post("/", async (req, res) => {
     const searchData = {
       m_pocz: req.body.source,
       m_doc: req.body.destination,
-      data_odlotu: req.body.sourceDate,
+      data_wylotu: req.body.sourceDate,
       data_przylotu: req.body.destinationDate,
       liczba_pasazerow: req.body.numberOfPassengers,
     };
+    console.log("Odebrane dane: ");
     console.log(searchData);
-    console.log(await pool.query("SELECT * FROM flights"));
 
     const flights = await pool.query(
-      `SELECT f.data_wylotu, f.data_przylotu
-      FROM flights f
+      `SELECT kod_lotu, tp.nazwa AS m_pocz, td.nazwa AS m_doc, status, 
+      TO_CHAR(data_wylotu, 'YYYY-MM-DD') AS data_wylotu,
+      TO_CHAR(data_przylotu, 'YYYY-MM-DD') AS data_przylotu, 
+      TO_CHAR(data_wylotu, 'HH24:MI') AS czas_wylotu,
+      TO_CHAR(data_przylotu, 'HH24:MI') AS czas_przylotu,
+      s.liczba_wolnych_miejsc, 
+      c.klasa,
+      c.cena
+      FROM lot
+      JOIN lotnisko tp ON lotnisko_wylotu_id=tp.lotnisko_id
+      JOIN lotnisko td ON lotnisko_przylotu_id=td.lotnisko_id
       JOIN lot_szczegoly s USING (lot_id)
-      WHERE m_pocz = $1
-        AND m_doc = $2
-        AND data_odlotu = $3
-        AND data_przylotu = $4
+      JOIN cennik c USING(cennik_id)
+      WHERE tp.nazwa = $1
+        AND td.nazwa = $2
+        AND TO_CHAR(data_wylotu, 'YYYY-MM-DD') = $3
+        AND TO_CHAR(data_przylotu, 'YYYY-MM-DD') = $4
         AND s.liczba_wolnych_miejsc >= $5`,
       [
         searchData.m_pocz,
         searchData.m_doc,
-        searchData.data_odlotu,
+        searchData.data_wylotu,
         searchData.data_przylotu,
         searchData.liczba_pasazerow,
       ]
     );
+
+    console.log("Znalezione loty:");
     console.log(flights.rows);
+
     if (flights.rows.length == 0) {
       return res.status(404).json({ message: "No flights found." });
     }
@@ -66,7 +79,7 @@ router.post("/", async (req, res) => {
       message: "Search data received successfully.",
     });
   } catch (error) {
-    console.error("Error processing search data:", error);
+    console.error("Error processing search data:", error.message);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

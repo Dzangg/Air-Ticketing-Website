@@ -14,7 +14,7 @@ import { FormControl } from "@mui/material";
 import { Form } from "react-router-dom";
 import { green } from "@mui/material/colors";
 
-export default function StepperDialog() {
+export default function StepperDialog(props) {
   const passengers = [
     {
       imie: "Jan",
@@ -131,10 +131,6 @@ export default function StepperDialog() {
 
   const [activeStep, setActiveStep] = React.useState(0);
 
-  const isStepOptional = (step) => {
-    return step === 1;
-  };
-
   const handleNext = async () => {
     const result = await validate();
     if (result) {
@@ -155,17 +151,10 @@ export default function StepperDialog() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-
   return (
     <Box sx={{ width: "100%" }}>
       <Stepper activeStep={activeStep}>
         {steps.map((step, index) => {
-          const stepProps = {};
-          const labelProps = {};
-
           return (
             <Step key={index}>
               <StepLabel>{step.label}</StepLabel>
@@ -185,6 +174,9 @@ export default function StepperDialog() {
           <Typography sx={{ mt: 2, mb: 1 }}>Krok {activeStep + 1}</Typography>
           {steps[activeStep].content}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+            {/* <Button color="inherit" onClick={props.handleClose}>
+              close
+            </Button> */}
             <Button
               color="inherit"
               disabled={activeStep === 0}
