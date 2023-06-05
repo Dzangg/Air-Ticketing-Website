@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const bodyParser = require("body-parser");
-// app.use(express.json());
+// Apply body-parser middleware
 app.use(bodyParser.json());
+// Enable CORS for all routes
+app.use(cors());
 const usersRouter = require("./routes/users.js");
 app.use("/users", usersRouter);
 
@@ -17,6 +20,9 @@ app.use("/users/:id/tickets", userTicketsRouter);
 
 const flightsRouter = require("./routes/flights.js");
 app.use("/flights", flightsRouter);
+
+const airportsRouter = require("./routes/airports.js");
+app.use("/airports", airportsRouter);
 
 const ticketsRouter = require("./routes/tickets.js");
 app.use("/tickets", ticketsRouter);

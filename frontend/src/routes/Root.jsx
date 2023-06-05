@@ -16,7 +16,7 @@ function Root() {
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Main />
-        <Link to={"flights"}>click - Flights</Link>
+        {/* <Link to={"flights"}>click - Flights</Link> */}
       </ThemeProvider>
     </>
   );

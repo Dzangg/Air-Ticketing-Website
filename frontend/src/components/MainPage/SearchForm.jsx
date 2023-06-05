@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Passenger from "./Passenger";
 import {
@@ -21,11 +21,133 @@ import PeopleIcon from "@mui/icons-material/People";
 import InputAdornment from "@mui/material/InputAdornment";
 
 function SearchForm() {
+  const validateInputs = async () => {
+    const result =
+      source != "" &&
+      destination != "" &&
+      sourceDate != "" &&
+      destinationDate != "" &&
+      (passengers.adults != 0 ||
+        passengers.teenagers != 0 ||
+        passengers.kids != 0 ||
+        passengers.toddlers != 0);
+
+    if (result) {
+      return true;
+    }
+    return false;
+  };
+
+  const formatDate = (date) => {
+    const formattedDate = date["$y"] + "-" + date["$M"] + "-" + date["$D"];
+    return formattedDate;
+  };
+
+  const [locationsData, setLocationsData] = useState(null);
+  const [flightsData, setFlightsData] = useState(null);
+
+  useEffect(() => {
+    // Fetch data when the component mounts
+    airportData();
+  }, []);
+
+  const airportData = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:3000/airports", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json", // Example header
+        },
+      });
+      const jsonData = await response.json();
+      setLocationsData(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  const searchFlights = async () => {
+    try {
+      const result = validateInputs();
+      if (!result) {
+        console.log("Fill the inputs.");
+        return;
+      }
+
+      const inputData = {
+        source: source,
+        destination: destination,
+        sourceDate: formatDate(sourceDate),
+        destinationDate: formatDate(destinationDate),
+        numberOfPassengers:
+          passengers.adults +
+          passengers.teenagers +
+          passengers.kids +
+          passengers.toddlers,
+      };
+
+      const response = await fetch("http://localhost:3000/flights", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error fetching data: " + response.status);
+      }
+
+      const jsonData = await response.json();
+      setFlightsData(jsonData);
+      console.log(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  const passengerNames = ["adults", "teenagers", "kids", "toddlers"];
+
   const navigate = useNavigate();
-  const [start, setStart] = useState("");
-  const [destination, setDestination] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [destinationDate, setDestinationDate] = useState("");
+  const [source, setSource] = useState();
+  const [destination, setDestination] = useState();
+  const [sourceDate, setSourceDate] = useState();
+  const [destinationDate, setDestinationDate] = useState();
+  const [dateError, setDateError] = useState(false);
+
+  const handleSourceDateChange = (date) => {
+    if (date < new Date()) {
+      setDateError(true);
+    } else {
+      setDateError(false);
+      setSourceDate(date);
+    }
+  };
+
+  const handleDestinationDateChange = (date) => {
+    if (date < new Date()) {
+      setDateError(true);
+    } else {
+      setDateError(false);
+      setDestinationDate(date);
+    }
+  };
+
+  const [autocompeleteOne, setAutocompleteOne] = useState(null);
+  const handleAutocompleteOne = (v) => {
+    setAutocompleteOne(v);
+  };
+
+  const [autocompeleteTwo, setAutocompleteTwo] = useState(null);
+  const handleAutocompleteTwo = (v) => {
+    setAutocompleteTwo(v);
+  };
+
+  const handleSourceChange = (v) => {
+    setSource(v);
+  };
+
+  const handleDestinationChange = (v) => {
+    setDestination(v);
+  };
 
   const [passengers, setPassengers] = useState({
     adults: 0,
@@ -78,32 +200,6 @@ function SearchForm() {
     return 0;
   };
 
-  const handleStartChange = (event) => {
-    setStart(event.target.value);
-  };
-
-  const handleDestinationChange = (event) => {
-    setDestination(event.target.value);
-  };
-
-  const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
-    console.log(startDate);
-  };
-
-  const handleDestinationDateChange = (event) => {
-    setDestinationDate(event.target.value);
-  };
-
-  const locations = ["Warszawa", "Gdańsk", "Kraków"];
-
-  const locationsData = locations.map((location, index) => ({
-    id: index + 1,
-    label: location,
-  }));
-
-  const passengerNames = ["adults", "teenagers", "kids", "toddlers"];
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container sx={{ maxWidth: "420px", marginTop: "50px" }} maxWidth={false}>
@@ -119,12 +215,20 @@ function SearchForm() {
               <FormControl fullWidth>
                 <Autocomplete
                   options={locationsData}
-                  getOptionLabel={(option) => option.label}
+                  getOptionLabel={(option) => option.nazwa}
+                  value={autocompeleteOne}
+                  inputValue={source}
+                  onChange={(event, newValue) => {
+                    handleAutocompleteOne(newValue);
+                  }}
+                  onInputChange={(event, newInputValue) => {
+                    handleSourceChange(newInputValue);
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Skąd"
-                      name="startPlace"
+                      name="source"
                       variant="outlined"
                     />
                   )}
@@ -139,12 +243,20 @@ function SearchForm() {
               <FormControl fullWidth>
                 <Autocomplete
                   options={locationsData}
-                  getOptionLabel={(option) => option.label}
+                  getOptionLabel={(option) => option.nazwa}
+                  value={autocompeleteTwo}
+                  inputValue={destination}
+                  onChange={(event, newValue) => {
+                    handleAutocompleteTwo(newValue);
+                  }}
+                  onInputChange={(event, newInputValue) => {
+                    handleDestinationChange(newInputValue);
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Dokąd"
-                      name="destinationPlace"
+                      name="destination"
                       variant="outlined"
                     />
                   )}
@@ -155,16 +267,26 @@ function SearchForm() {
             {/* Data wylotu */}
             <Grid item>
               <FormControl fullWidth>
-                <DatePicker label="Wylot" fullWidth onChange={setStartDate} />
+                <DatePicker
+                  disablePast
+                  label="Wylot"
+                  fullWidth
+                  value={sourceDate}
+                  onChange={handleSourceDateChange}
+                  error={dateError}
+                />
               </FormControl>
             </Grid>
             {/* Data powrotu */}
             <Grid item>
               <FormControl fullWidth>
                 <DatePicker
+                  disablePast
                   label="Powrót"
                   fullWidth
-                  onChange={setDestinationDate}
+                  value={destinationDate}
+                  onChange={handleDestinationDateChange}
+                  error={dateError}
                 />
               </FormControl>
             </Grid>
@@ -238,7 +360,7 @@ function SearchForm() {
                 variant="contained"
                 color="primary"
                 fullWidth
-                onClick={() => navigate("/flights")}
+                onClick={searchFlights}
               >
                 Wyszukaj
               </Button>
