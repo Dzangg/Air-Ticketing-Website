@@ -30,6 +30,12 @@ app.use("/tickets", ticketsRouter);
 const authRouter = require("./routes/auth.js");
 app.use("/auth", authRouter);
 
+const luggagesRouter = require("./routes/luggages.js");
+app.use("/luggages", luggagesRouter);
+
+const servicesRouter = require("./routes/services.js");
+app.use("/services", servicesRouter);
+
 app.listen(3000, () => {
   console.log("Server running on port 3000");
 });

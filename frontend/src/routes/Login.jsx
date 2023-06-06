@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Typography, TextField, Button } from "@mui/material";
-import Ticket from "../components/FlightsPage/Ticket";
+
 const Login = () => {
   return (
     <Container
@@ -22,7 +22,6 @@ const Login = () => {
           Submit
         </Button>
       </form>
-      <Ticket flightId={1} />
     </Container>
   );
 };

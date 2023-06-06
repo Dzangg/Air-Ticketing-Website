@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -12,36 +12,178 @@ import Radio from "@mui/material/Radio";
 import { StepLabel } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { Form } from "react-router-dom";
-import { green } from "@mui/material/colors";
+import { green, red } from "@mui/material/colors";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormHelperText from "@mui/material/FormHelperText";
+import Select from "@mui/material/Select";
+import FormLabel from "@mui/material/FormLabel";
+
+const flightSeats = [
+  "A1",
+  "A2",
+  "A3",
+  "A4",
+  "A5",
+  "B1",
+  "B2",
+  "B3",
+  "B4",
+  "B5",
+  "C1",
+  "C2",
+  "C3",
+  "C4",
+  "C5",
+];
 
 export default function StepperDialog(props) {
-  const passengers = [
+  useEffect(() => {
+    luggageData();
+    servicesData();
+  }, []);
+
+  const luggageData = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:3000/luggages", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const jsonData = await response.json();
+      const l = setLuggagesOptions(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const servicesData = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:3000/services", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const jsonData = await response.json();
+
+      const s = setServices(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const [luggagesOptions, setLuggagesOptions] = useState();
+  const [services, setServices] = useState();
+
+  const [luggages, setLuggages] = useState([]);
+
+  const handleLuggageChange = (event, index) => {
+    setSeats((prevLuggages) => {
+      const updatedLuggages = [...prevLuggages];
+      updatedLuggages.push();
+      return updatedLuggages;
+    });
+  };
+
+  console.log(services);
+
+  const user = props.user;
+
+  const passengersLabelsData = [
     {
-      imie: "Jan",
-      nazwisko: "Nowak",
-      wiek: 35,
+      imie: "",
+      nazwisko: "",
+      wiek: "",
+      miejsce: "",
+      type: "",
+      bagaz_podreczny: "",
+      bagaz_rejestrowany: "",
     },
   ];
 
-  const numberOfPassengers = 3;
+  const passengers = Object.values(props.passengers);
+  let numberOfPassengers = 0;
+  passengers.forEach((num) => (numberOfPassengers += num));
 
-  for (let i = 0; i < numberOfPassengers; i++) {
-    passengers.push({ imie: "", nazwisko: "", wiek: "" });
+  if (numberOfPassengers > 1) {
+    for (let i = 0; i < numberOfPassengers; i++) {
+      if (passengers[i] > 0) {
+        const type = {
+          name: "",
+        };
+        if (i == 0) {
+          type.name = "dorosły";
+        } else if (i == 1) {
+          type.name = "nastolatek";
+        } else if (i == 2) {
+          type.name = "dziecko";
+        } else {
+          type.name = "niemowle";
+        }
+        // Dorosly default + 1
+
+        if (i == 0 && passengers[i] == 1) {
+          continue;
+        } else {
+          if (passengers[i] > 1) {
+            for (let j = 0; j < passengers[i]; j++) {
+              passengersLabelsData.push({
+                imie: "",
+                nazwisko: "",
+                wiek: "",
+                bagaz_podreczny: "",
+                bagaz_rejestrowany: "",
+                type: type.name,
+              });
+            }
+          } else {
+            passengersLabelsData.push({
+              imie: "",
+              nazwisko: "",
+              wiek: "",
+              bagaz_podreczny: "",
+              bagaz_rejestrowany: "",
+              type: type.name,
+            });
+          }
+        }
+      }
+    }
   }
 
-  const [passengerData, setPassengerData] = useState(passengers);
+  passengersLabelsData[0] = {
+    imie: user.imie,
+    nazwisko: user.nazwisko,
+    wiek: user.wiek,
+    type: "dorosły",
+    miejsce: "",
+    bagaz_podreczny: "",
+    bagaz_rejestrowany: "",
+  };
+
+  const [passengersData, setPassengerData] = useState(passengersLabelsData);
+
+  const [seats, setSeats] = useState([]);
+
+  const handleSeatChange = (event, index) => {
+    const updatedSeats = [...seats];
+    updatedSeats[index] = event.target.value;
+    setSeats(updatedSeats);
+  };
 
   const steps = [
     {
       label: "Wypełnij dane pasażerów",
       content: (
         <>
-          {passengers.map((passenger, index) => {
+          {passengersData.map((passenger, index) => {
             if (index == 0) {
               return (
                 <>
                   <Typography variant="subtitle1">
-                    Pasażer nr {index + 1}{" "}
+                    Pasażer nr {index + 1} - użytkownik
                   </Typography>
                   <FormControl>
                     <Box
@@ -54,18 +196,18 @@ export default function StepperDialog(props) {
                       <TextField
                         label="Imie"
                         disabled
-                        value={passengerData[index].imie}
+                        value={passengersData[index].imie}
                       />
                       <TextField
                         label="Nazwisko"
                         disabled
-                        value={passengerData[index].nazwisko}
+                        value={passengersData[index].nazwisko}
                       />
                       <TextField
                         type="number"
                         label="Wiek"
                         disabled
-                        value={passengerData[index].wiek}
+                        value={passengersData[index].wiek}
                       />
                     </Box>
                   </FormControl>
@@ -74,17 +216,17 @@ export default function StepperDialog(props) {
             } else {
               return (
                 <>
-                  <Typography variant="subtitle2">
-                    Pasażer nr {index + 1}
+                  <Typography variant="subtitle1">
+                    Pasażer nr {index + 1} - {passenger.type}
                   </Typography>
                   <FormControl>
                     <Box style={{ display: "flex", flexDirection: "row" }}>
                       <TextField
                         label="Imie"
                         defaultValue=""
-                        value={passengerData[index].imie}
+                        value={passengersData[index].imie}
                         onChange={(e) => {
-                          const updatedPassengers = [...passengerData];
+                          const updatedPassengers = [...passengersData];
                           updatedPassengers[index].imie = e.target.value;
                           setPassengerData(updatedPassengers);
                         }}
@@ -92,9 +234,9 @@ export default function StepperDialog(props) {
                       <TextField
                         label="Nazwisko"
                         defaultValue=""
-                        value={passengerData[index].nazwisko}
+                        value={passengersData[index].nazwisko}
                         onChange={(e) => {
-                          const updatedPassengers = [...passengerData];
+                          const updatedPassengers = [...passengersData];
                           updatedPassengers[index].nazwisko = e.target.value;
                           setPassengerData(updatedPassengers);
                         }}
@@ -103,9 +245,9 @@ export default function StepperDialog(props) {
                         type="number"
                         label="Wiek"
                         defaultValue=""
-                        value={passengerData[index].wiek}
+                        value={passengersData[index].wiek}
                         onChange={(e) => {
-                          const updatedPassengers = [...passengerData];
+                          const updatedPassengers = [...passengersData];
                           updatedPassengers[index].wiek = e.target.value;
                           setPassengerData(updatedPassengers);
                         }}
@@ -120,8 +262,81 @@ export default function StepperDialog(props) {
       ),
     },
     {
-      label: "Wybierz bagaż i usługi",
-      content: "Step 2 content goes here",
+      label: "Wybierz miejsce, bagaż i usługi",
+      content: (
+        <>
+          {luggages && seats
+            ? passengersData.map((passenger, index) => {
+                return (
+                  <>
+                    <Typography variant="subtitle1">
+                      Pasażer nr {index + 1} - {passenger.imie}
+                    </Typography>
+
+                    <Typography variant="body1">
+                      Wybór miejsca -{" "}
+                      <span style={{ fontWeight: "bold", color: red[500] }}>
+                        {/* {services[2].cena}zł */}
+                      </span>
+                    </Typography>
+                    <Box style={{ display: "flex", flexDirection: "row" }}>
+                      <FormControl fullWidth>
+                        <Select
+                          labelId={"seat-select-label-" + index}
+                          id={"seat-select-" + index}
+                          value={seats[index]}
+                          label="Miejsce"
+                          onChange={(event) => {
+                            handleSeatChange(event, index);
+                          }}
+                        >
+                          {flightSeats.map((seat) => {
+                            return <MenuItem value={seat}>{seat}</MenuItem>;
+                          })}
+                        </Select>
+                        <RadioGroup
+                          aria-labelledby="radio-luggage"
+                          defaultValue="bagaz-podreczny"
+                          name="radio-luggage-bagaz-podreczny"
+                        >
+                          <FormControlLabel
+                            value="bagaz-podreczny"
+                            control={<Radio />}
+                            label="bagaż-podręczny"
+                          />
+                        </RadioGroup>
+                        {/* <Select
+                      labelId={"luggage-select-label-" + index}
+                      id={"luggage-select-" + index}
+                      value={passenger.bagaz_rejestrowany}
+                      label="Miejsce"
+                      onChange={(event) => {
+                        handleSeatChange(event, index);
+                      }}
+                    >
+                      {flightSeats.map((seat) => {
+                        return <MenuItem value={seat}>{seat}</MenuItem>;
+                      })}
+                    </Select> */}
+                      </FormControl>
+
+                      {/* <TextField
+                      label="miejsce"
+                      defaultValue=""
+                      value={passengersData[index].miejsce}
+                      onChange={(e) => {
+                        const updatedPassengers = [...passengersData];
+                        updatedPassengers[index].miejsce = e.target.value;
+                        setPassengerData(updatedPassengers);
+                      }}
+                    /> */}
+                    </Box>
+                  </>
+                );
+              })
+            : ""}
+        </>
+      ),
     },
     {
       label: "Zarezerwuj i zapłać",
@@ -132,14 +347,14 @@ export default function StepperDialog(props) {
   const [activeStep, setActiveStep] = React.useState(0);
 
   const handleNext = async () => {
-    const result = await validate();
+    const result = await validateStepOne();
     if (result) {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 
-  const validate = async () => {
-    for (const el of passengerData) {
+  const validateStepOne = async () => {
+    for (const el of passengersData) {
       if (el.imie == "" || el.nazwisko == "" || el.wiek == "") {
         return false;
       }
@@ -174,20 +389,20 @@ export default function StepperDialog(props) {
           <Typography sx={{ mt: 2, mb: 1 }}>Krok {activeStep + 1}</Typography>
           {steps[activeStep].content}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            {/* <Button color="inherit" onClick={props.handleClose}>
-              close
-            </Button> */}
+            <Button color="inherit" onClick={props.handleClose}>
+              Zamknij
+            </Button>
             <Button
               color="inherit"
               disabled={activeStep === 0}
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
-              Back
+              Cofnij
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
             <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+              {activeStep === steps.length - 1 ? "Potwierdź" : "Dalej"}
             </Button>
           </Box>
         </React.Fragment>

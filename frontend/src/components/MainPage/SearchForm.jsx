@@ -21,7 +21,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import PeopleIcon from "@mui/icons-material/People";
 import InputAdornment from "@mui/material/InputAdornment";
 import CloseIcon from "@mui/icons-material/Close";
-
+import { grey, lightBlue } from "@mui/material/colors";
 function SearchForm() {
   const [locationsData, setLocationsData] = useState(null);
   const [flightsData, setFlightsData] = useState(null);
@@ -182,6 +182,7 @@ function SearchForm() {
         destination: destination,
         sourceDate: formatDate(sourceDate),
         destinationDate: formatDate(destinationDate),
+        passengers: passengers,
         numberOfPassengers:
           passengers.adults +
           passengers.teenagers +

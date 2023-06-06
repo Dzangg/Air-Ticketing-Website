@@ -31,8 +31,8 @@ const Item = styled("div")(({ theme }) => ({
 const FlightsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const flightsData = location.state.jsonData.data;
-  console.log(flightsData);
+  const flightsData = location.state.jsonData.flightsData;
+  const passengersInfo = location.state.jsonData.passengers;
 
   const [openTicketDialog, setOpenTicketDialog] = useState(false);
   const openDialog = () => {
@@ -41,6 +41,13 @@ const FlightsPage = () => {
   const closeDialog = () => {
     setOpenTicketDialog(false);
   };
+
+  const user = {
+    imie: "Jan",
+    nazwisko: "Nowak",
+    wiek: 35,
+  };
+
   return (
     <Container sx={{ overflow: "hidden" }}>
       <Stack direction="row" sx={{ mt: "30px" }} alignItems="center">
@@ -136,6 +143,8 @@ const FlightsPage = () => {
                         open={openTicketDialog}
                         handleClose={closeDialog}
                         flightInfo={flight}
+                        passengers={passengersInfo}
+                        user={user}
                       />
                     ) : (
                       ""

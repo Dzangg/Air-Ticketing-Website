@@ -11,7 +11,7 @@ export default function MainText() {
         component="h1"
         align="center"
         sx={{
-          marginTop: "50px",
+          // marginTop: "50px",
           color: "text.primary",
           minHeight: "100px",
           maxHeight: "200px",

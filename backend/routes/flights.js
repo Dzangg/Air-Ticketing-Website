@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
       liczba_pasazerow: req.body.numberOfPassengers,
     };
     console.log("Odebrane dane: ");
-    console.log(searchData);
+    console.log(searchData + " " + req.body.passengers);
 
     const flights = await pool.query(
       `SELECT kod_lotu, tp.nazwa AS m_pocz, td.nazwa AS m_doc, status, 
@@ -75,7 +75,8 @@ router.post("/", async (req, res) => {
     }
 
     return res.status(200).json({
-      data: flights.rows,
+      flightsData: flights.rows,
+      passengers: req.body.passengers,
       message: "Search data received successfully.",
     });
   } catch (error) {

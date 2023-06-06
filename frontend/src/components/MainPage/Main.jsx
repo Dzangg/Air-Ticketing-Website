@@ -4,9 +4,9 @@ import MainText from "./MainText";
 
 export default function Main() {
   return (
-    <>
+    <div>
       <MainText />
       <SearchForm />
-    </>
+    </div>
   );
 }

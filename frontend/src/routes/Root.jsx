@@ -13,11 +13,23 @@ const darkTheme = createTheme({
 function Root() {
   return (
     <>
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
-        <Main />
-        {/* <Link to={"flights"}>click - Flights</Link> */}
-      </ThemeProvider>
+      <div
+      // style={{
+      //   backgroundImage: "url(/img/background-airplane.jpg)",
+      //   height: "100vh",
+      //   overflowY: "hidden",
+      //   position: "fixed",
+      //   width: "100%",
+      //   backgroundSize: "cover", // Scale the background image to cover the entire div
+      //   backgroundPosition: "center", // Center the background image
+      //   left: 0,
+      // }}
+      >
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          <Main />
+        </ThemeProvider>
+      </div>
     </>
   );
 }

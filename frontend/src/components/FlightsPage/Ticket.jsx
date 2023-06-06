@@ -11,6 +11,7 @@ export default function Ticket(props) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const passengers = props.passengers;
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -36,7 +37,11 @@ export default function Ticket(props) {
           {"Rezerwacja lotu nr: "} {props.flightInfo.kod_lotu}
         </DialogTitle>
         <DialogContent>
-          <StepperDialog />
+          <StepperDialog
+            handleClose={handleClose}
+            passengers={passengers}
+            user={props.user}
+          />
         </DialogContent>
       </Dialog>
     </>
