@@ -26,34 +26,36 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
-const flightSeats = [
-  "A1",
-  "A2",
-  "A3",
-  "A4",
-  "A5",
-  "B1",
-  "B2",
-  "B3",
-  "B4",
-  "B5",
-  "C1",
-  "C2",
-  "C3",
-  "C4",
-  "C5",
-];
+// const flightSeats = [
+//   "A1",
+//   "A2",
+//   "A3",
+//   "A4",
+//   "A5",
+//   "B1",
+//   "B2",
+//   "B3",
+//   "B4",
+//   "B5",
+//   "C1",
+//   "C2",
+//   "C3",
+//   "C4",
+//   "C5",
+// ];
 
 export default function StepperDialog(props) {
   //console.log(props.user);
   const [user, setUser] = useState(null);
   const [steps, setSteps] = useState();
+  const [flightSeats, setFlightSeats] = useState();
   const passengersLabelsData = [
     {
       imie: "",
       nazwisko: "",
       wiek: "",
       miejsce: "",
+      miejsceWybrane: false,
       type: "",
       bagaz_podreczny: "",
       bagaz_rejestrowany: "",
@@ -68,6 +70,7 @@ export default function StepperDialog(props) {
   useEffect(() => {
     luggageData();
     servicesData();
+    s();
   }, []);
 
   useEffect(() => {
@@ -77,6 +80,9 @@ export default function StepperDialog(props) {
       updatedPassengers[0].imie = props.user.userImie;
       updatedPassengers[0].nazwisko = props.user.userNazwisko;
       updatedPassengers[0].wiek = props.user.userWiek;
+      updatedPassengers[0].email = props.user.userEmail;
+      updatedPassengers[0].type = "dorosly";
+
       setPassengerData(updatedPassengers);
     }
   }, [props.user]);
@@ -84,6 +90,7 @@ export default function StepperDialog(props) {
   useEffect(() => {
     generateSteps();
     setPassengersCost();
+    console.log(passengersData);
   }, [passengersData, ticketCost]);
 
   const generateSteps = () => {
@@ -207,7 +214,11 @@ export default function StepperDialog(props) {
                           <Select
                             labelId={"seat-select-label-" + index}
                             id={"seat-select-" + index}
-                            value={passengersData[index].miejsce}
+                            value={
+                              passengersData[index].miejsceWybrane
+                                ? passengersData[index].miejsce
+                                : ""
+                            }
                             label="Miejsce"
                             onChange={(event) => {
                               handleSeatChange(event, index);
@@ -345,9 +356,7 @@ export default function StepperDialog(props) {
 
                       <TableCell align="right">{row.nazwisko}</TableCell>
                       <TableCell align="right">
-                        {!row.miejsce
-                          ? "domyślne"
-                          : row.miejsce + "-" + services[1].cena + "zł"}
+                        {!row.miejsceWybrane ? "domyślne" : row.miejsce}
                       </TableCell>
 
                       <TableCell align="right">
@@ -355,24 +364,15 @@ export default function StepperDialog(props) {
                           ? "brak"
                           : luggagesOptions[row.bagaz_rejestrowany - 1]
                               .typ_bagazu +
-                            "-" +
+                            " " +
                             luggagesOptions[row.bagaz_rejestrowany - 1].waga +
-                            "-" +
-                            luggagesOptions[row.bagaz_rejestrowany - 1]
-                              .wymiary +
-                            "-" +
-                            luggagesOptions[row.bagaz_rejestrowany - 1].cena +
-                            "zł"}
+                            " " +
+                            luggagesOptions[row.bagaz_rejestrowany - 1].wymiary}
                       </TableCell>
                       <TableCell align="right">
                         {row.uslugi_dodatkowe.length != 0
                           ? row.uslugi_dodatkowe.map((id) => {
-                              return (
-                                services[id - 1].nazwa +
-                                "-" +
-                                services[id - 1].cena +
-                                "zł, "
-                              );
+                              return services[id - 1].nazwa + ", ";
                             })
                           : ""}
                       </TableCell>
@@ -434,6 +434,42 @@ export default function StepperDialog(props) {
     }
   };
 
+  const bookTicket = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:3000/tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passengersData, flightId: props.flightId }),
+      });
+      const jsonData = await response.json();
+      console.log(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const s = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:3000/flights/${props.flightId}/seats`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const seats = await response.json();
+      console.log(seats);
+
+      setFlightSeats(seats);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const passengers = Object.values(props.passengers);
   let numberOfPassengers = 0;
   passengers.forEach((num) => (numberOfPassengers += num));
@@ -464,6 +500,8 @@ export default function StepperDialog(props) {
                 imie: "",
                 nazwisko: "",
                 wiek: "",
+                miejsce: "",
+                miejsceWybrane: false,
                 bagaz_podreczny: "",
                 bagaz_rejestrowany: "",
                 type: type.name,
@@ -476,6 +514,8 @@ export default function StepperDialog(props) {
               imie: "",
               nazwisko: "",
               wiek: "",
+              miejsce: "",
+              miejsceWybrane: false,
               bagaz_podreczny: "",
               bagaz_rejestrowany: "",
               type: type.name,
@@ -491,7 +531,11 @@ export default function StepperDialog(props) {
   const handleSeatChange = (event, index) => {
     const updatedPassengers = [...passengersData];
     updatedPassengers[index].miejsce = event.target.value;
-
+    if (event.target.value == "") {
+      updatedPassengers[index].miejsceWybrane = false;
+    } else {
+      updatedPassengers[index].miejsceWybrane = true;
+    }
     setPassengerData(updatedPassengers);
   };
 
@@ -533,7 +577,7 @@ export default function StepperDialog(props) {
     let sum = 0;
     passengersData.forEach((passenger) => {
       let subSum = 0;
-      const seat = passenger.miejsce ? 64 : 0;
+      const seat = passenger.miejsceWybrane ? 64 : 0;
       const luggage =
         passenger.bagaz_rejestrowany != ""
           ? luggagesOptions[passenger.bagaz_rejestrowany - 1].cena
@@ -553,7 +597,7 @@ export default function StepperDialog(props) {
 
       subSum += seat + luggage + usluga;
       sum += subSum;
-      passenger.koszt = subSum;
+      passenger.koszt = subSum + props.flightPrice;
 
       // console.log("seat " + seat);
       // console.log("luggage " + luggage);
@@ -600,6 +644,29 @@ export default function StepperDialog(props) {
         }
       });
     });
+
+    if (result) {
+      const updatedPassengers = [...passengersData];
+
+      const indexes = updatedPassengers
+        .map((_, index) => index)
+        .filter((index) => updatedPassengers[index].miejsce === "");
+
+      indexes.forEach((index) => {
+        // Find the first available seat
+        const availableSeat = flightSeats.find(
+          (seat) =>
+            !updatedPassengers.some((passenger) => passenger.miejsce === seat)
+        );
+
+        // If an available seat is found, assign it to the passenger
+        if (availableSeat) {
+          updatedPassengers[index].miejsce = availableSeat;
+        }
+      });
+
+      setPassengerData(updatedPassengers);
+    }
     return result;
   };
 
@@ -644,12 +711,21 @@ export default function StepperDialog(props) {
                 Cofnij
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
-              <Button onClick={handleNext}>
+              <Button
+                onClick={() => {
+                  if (activeStep === steps.length - 1) {
+                    bookTicket();
+                  } else {
+                    handleNext();
+                  }
+                }}
+              >
                 {activeStep === steps.length - 1 ? "Potwierdź" : "Dalej"}
               </Button>
               <Button
                 onClick={() => {
                   console.log(passengersData);
+                  s();
                 }}
               >
                 test

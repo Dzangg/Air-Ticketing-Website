@@ -28,7 +28,6 @@ export default function Ticket(props) {
   useEffect(() => {
     handleClickOpen();
     setUser(props.user);
-    console.log(user);
   });
 
   const renderDialog = () => {
@@ -38,6 +37,7 @@ export default function Ticket(props) {
         handleClose={handleClose}
         passengers={passengers}
         flightPrice={props.flight.cena}
+        flightId={props.flight.lot_id}
       />
     );
   };

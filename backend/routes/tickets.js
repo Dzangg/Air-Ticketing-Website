@@ -30,15 +30,93 @@ router.get("/:ticket_id", async (req, res) => {
 
 // Create one
 router.post("/", async (req, res) => {
-  const ticket = {
-    lot_id: req.body.lot_id,
-    user_id: req.body.user_id,
-  };
+  const passengersData = req.body.passengersData;
+  const flightId = req.body.flightId;
   try {
-    const newTicket = await pool.query(
-      `INSERT INTO tickets (lot_id, user_id) VALUES ($1, $2)`,
-      [ticket.lot_id, ticket.user_id]
+    console.log(passengersData);
+    console.log("lot id: " + flightId);
+
+    // uzytkownik
+    const user = await pool.query(
+      "SELECT uzytkownik_ID FROM uzytkownik WHERE email=$1",
+      [passengersData[0].email]
     );
+    const userId = user.rows[0].uzytkownik_id;
+    console.log("user id: " + userId);
+
+    const kod_biletu = "1234";
+    const status = "aktywny";
+    const cena = passengersData.reduce(
+      (total, passenger) => total + passenger.koszt,
+      0
+    );
+    console.log("kod biletu: " + kod_biletu);
+
+    // bilet
+    const ticket = await pool.query(
+      "INSERT INTO bilet (uzytkownik_id,lot_id,kod,status,cena) VALUES($1,$2,$3,$4,$5) RETURNING bilet_id",
+      [userId, flightId, kod_biletu, status, cena]
+    );
+    const ticketId = ticket.rows[0].bilet_id;
+
+    // samolot
+    const airplane = await pool.query(
+      "SELECT o.samolot_id FROM Lot JOIN lot_szczegoly l USING(lot_id) JOIN samolot o ON l.samolot_id=o.samolot_id WHERE lot_ID=$1",
+      [flightId]
+    );
+    const airplaneId = airplane.rows[0].samolot_id;
+    console.log("samolotid: " + airplaneId);
+
+    // pasazerowie
+    passengersData.forEach(async (passenger, index) => {
+      // siedzenie pasazera
+      const s = await pool.query(
+        "SELECT siedzenie_id FROM siedzenie WHERE samolot_id=$1 AND nazwa_siedzenia=$2",
+        [airplaneId, passenger.miejsce]
+      );
+      const seat_id = s.rows[0].siedzenie_id;
+
+      // bagaze pasazera
+      const normalBaggageId = 1;
+      const checkedBaggageId = passenger.bagaz_rejestrowany;
+
+      const nazwisko = passenger.nazwisko;
+      const imie = passenger.imie;
+      const wiek = parseInt(passenger.wiek);
+
+      const p1 = await pool.query(
+        "INSERT INTO pasazer (bilet_id,siedzenie_id,imie,nazwisko,wiek) VALUES($1,$2,$3,$4,$5) RETURNING pasazer_id",
+        [ticketId, seat_id, imie, nazwisko, wiek]
+      );
+
+      const passengerId = p1.rows[0].pasazer_id;
+      if (checkedBaggageId != "") {
+        const baggageNumber = normalBaggageId + (checkedBaggageId != 0);
+        for (let i = 0; i < baggageNumber; i++) {
+          const b_p = await pool.query(
+            "INSERT INTO bagaz_pasazer (bagazbagaz_id,pasazerpasazer_id) VALUES ($1,$2)",
+            [checkedBaggageId, passengerId]
+          );
+        }
+      } else {
+        const b_p = await pool.query(
+          "INSERT INTO bagaz_pasazer (bagazbagaz_id,pasazerpasazer_id) VALUES ($1,$2)",
+          [1, passengerId]
+        );
+      }
+
+      // uslugi pasazera
+      const services = passenger.uslugi_dodatkowe;
+      if (services.length != 0) {
+        services.forEach(async (serviceId) => {
+          const p_u_d = await pool.query(
+            "INSERT INTO pasazer_uslugi_dodatkowe (pasazer_id,id_uslugi) VALUES($1,$2)",
+            [passengerId, serviceId]
+          );
+        });
+      }
+    });
+
     res.status(201).json({ message: "Ticket created successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

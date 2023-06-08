@@ -25,6 +25,28 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// get flight seats
+router.get("/:id/seats", async (req, res) => {
+  const flightId = req.params.id;
+  try {
+    // const seats = await pool.query(
+    //   `SELECT s.nazwa_siedzenia FROM lot JOIN lot_szczegoly l using(lot_id) JOIN samolot o ON l.samolot_id=o.samolot_id JOIN siedzenie s ON o.samolot_ID=s.samolot_ID WHERE lot_id=$1`,
+    //   [flightId]
+    // );
+    const seats = await pool.query(
+      `SELECT s.nazwa_siedzenia FROM lot JOIN lot_szczegoly l using(lot_id) JOIN samolot o ON l.samolot_id=o.samolot_id JOIN siedzenie s ON o.samolot_ID=s.samolot_ID WHERE lot_id=$1 AND s.nazwa_siedzenia NOT IN (SELECT nazwa_siedzenia FROM siedzenie JOIN pasazer p USING(siedzenie_id) JOIN bilet b ON p.bilet_id=b.bilet_id WHERE b.lot_id=$1) `,
+      [flightId]
+    );
+    //  JOIN bilet b ON p.bilet_id=b.bilet_id WHERE b.lot_id=$3
+
+    const seatsValues = seats.rows.map((seat) => seat.nazwa_siedzenia);
+    console.log("siedzenia: " + seatsValues);
+    res.send(seatsValues);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Send searched
 
 router.post("/", async (req, res) => {
@@ -40,7 +62,7 @@ router.post("/", async (req, res) => {
     console.log(searchData + " " + req.body.passengers);
 
     const flights = await pool.query(
-      `SELECT kod_lotu, tp.nazwa AS m_pocz, td.nazwa AS m_doc, status, 
+      `SELECT lot_id, kod_lotu, tp.nazwa AS m_pocz, td.nazwa AS m_doc, status, 
       TO_CHAR(data_wylotu, 'YYYY-MM-DD') AS data_wylotu,
       TO_CHAR(data_przylotu, 'YYYY-MM-DD') AS data_przylotu, 
       TO_CHAR(data_wylotu, 'HH24:MI') AS czas_wylotu,

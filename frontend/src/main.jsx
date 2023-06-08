@@ -4,9 +4,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from "./routes/Root";
 import ErrorPage from "./error-page";
 import Flights from "./routes/Fligts";
-
 import Login from "./routes/Login";
 import Register from "./routes/Register";
+
+import UserAccount from "./components/TicketsPage/Profile";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -39,6 +40,14 @@ const router = createBrowserRouter([
     element: (
       <>
         <Register />
+      </>
+    ),
+  },
+  {
+    path: "account",
+    element: (
+      <>
+        <UserAccount />
       </>
     ),
   },

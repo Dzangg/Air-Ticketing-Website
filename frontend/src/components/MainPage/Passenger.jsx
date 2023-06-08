@@ -5,12 +5,25 @@ import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
 
 export default function Passenger(props) {
+  const pName = {
+    name: "",
+  };
+  if (props.name == "adults") {
+    pName.name = "dorosly(18>)";
+  } else if (props.name == "teenagers") {
+    pName.name = "nastolatek(17-13)";
+  } else if (props.name == "kids") {
+    pName.name = "dziecko(12-3)";
+  } else {
+    pName.name = "niemowle(2-0)";
+  }
+
   return (
     <>
       <FormControl fullWidth>
         <Box fullWidth>
           <PersonIcon />
-          {props.name}
+          {pName.name}
           <IconButton
             color="inherit"
             size="small"
