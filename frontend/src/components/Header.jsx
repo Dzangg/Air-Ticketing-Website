@@ -51,8 +51,13 @@ function Header(props) {
         <Menu anchorEl={anchorEl} open={open} onClick={handleClose}>
           {token ? (
             <>
-              <MenuItem onClose={handleClose}>
-                <AccountCircleIcon /> Bilety
+              <MenuItem
+                onClose={handleClose}
+                onClick={() => {
+                  navigate("/account");
+                }}
+              >
+                <AccountCircleIcon /> Konto
               </MenuItem>
 
               <Divider />

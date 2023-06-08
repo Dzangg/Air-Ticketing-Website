@@ -6,8 +6,8 @@ import ErrorPage from "./error-page";
 import Flights from "./routes/Fligts";
 import Login from "./routes/Login";
 import Register from "./routes/Register";
+import UserAccount from "./components/UserAccount/UserAccount";
 
-import UserAccount from "./components/TicketsPage/Profile";
 const router = createBrowserRouter([
   {
     path: "/",

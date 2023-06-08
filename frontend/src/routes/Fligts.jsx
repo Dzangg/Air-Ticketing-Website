@@ -32,6 +32,11 @@ const Item = styled("div")(({ theme }) => ({
 const FlightsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleNavigation = () => {
+    navigate("/");
+  };
+
   const flightsData = location.state.jsonData.flightsData;
   const passengersInfo = location.state.jsonData.passengers;
   const userInfo = location.state.user;

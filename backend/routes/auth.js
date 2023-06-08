@@ -15,7 +15,7 @@ async function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.SECRETKEY);
     req.user = decoded;
-    console.log("veryfikacja: ", decoded);
+    // console.log("veryfikacja: ", decoded);
     const foundUser = await pool.query(
       `SELECT EXISTS (SELECT 1 FROM uzytkownik WHERE email=$1)`,
       [decoded.userEmail]

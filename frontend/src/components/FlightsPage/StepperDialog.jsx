@@ -71,6 +71,7 @@ export default function StepperDialog(props) {
     luggageData();
     servicesData();
     s();
+    generateSteps();
   }, []);
 
   useEffect(() => {

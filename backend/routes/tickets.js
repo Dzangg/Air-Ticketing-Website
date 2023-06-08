@@ -16,13 +16,76 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get one
-router.get("/:ticket_id", async (req, res) => {
+// Get all tickets
+router.get("/:userEmail", async (req, res) => {
   try {
-    const ticket = await pool.query(
-      `SELECT * FROM tickets WHERE ticket_id=${req.params.ticket_id}`
+    // uzytkownik
+    const user = await pool.query(
+      "SELECT uzytkownik_ID FROM uzytkownik WHERE email=$1",
+      [req.params.userEmail]
     );
-    res.send(ticket.rows);
+    const userId = user.rows[0].uzytkownik_id;
+
+    // bilety
+    const tickets = await pool.query(
+      `SELECT * FROM bilet WHERE uzytkownik_id=$1`,
+      [userId]
+    );
+    console.log(tickets.rows);
+    const ticketsData = [];
+    for (const ticket of tickets.rows) {
+      const ticketId = ticket.bilet_id;
+
+      const ticketPrice = ticket.cena;
+      const ticketStatus = ticket.status;
+
+      // pasazerowie
+      const passengers = await pool.query(
+        `SELECT * FROM pasazer WHERE bilet_id=$1`,
+        [ticketId]
+      );
+
+      const passengerData = [];
+      for (const passenger of passengers.rows) {
+        const passengerId = passenger.pasazer_id;
+
+        const luggage = await pool.query(
+          "SELECT b.bagaz_id, b.typ_bagazu, b.waga, b.wymiary, b.cena FROM pasazer p JOIN bagaz_pasazer bp ON p.pasazer_id = bp.pasazerpasazer_id JOIN bagaz b ON bp.bagazbagaz_id = b.bagaz_id WHERE p.pasazer_id = $1",
+          [passengerId]
+        );
+
+        const service = await pool.query(
+          "SELECT ud.id_uslugi, ud.nazwa, ud.cena FROM pasazer p JOIN pasazer_uslugi_dodatkowe u ON p.pasazer_id=u.pasazer_id JOIN uslugi_dodatkowe ud ON u.id_uslugi=ud.id_uslugi WHERE p.pasazer_id=$1",
+          [passengerId]
+        );
+
+        const seat = await pool.query(
+          "SELECT s.nazwa_siedzenia FROM pasazer p JOIN siedzenie  s USING(siedzenie_id) WHERE p.pasazer_id=$1",
+          [passengerId]
+        );
+
+        const data = [
+          {
+            passenger: passenger,
+            seat: seat.rows[0],
+            luggage: luggage.rows,
+            service: service.rows,
+          },
+        ];
+
+        passengerData.push(...data);
+      }
+      ticketsData.push({
+        passengerData: passengerData,
+        ticketPrice: ticketPrice,
+        ticketStatus: ticketStatus,
+      });
+    }
+
+    console.log(ticketsData);
+    res.send({
+      ticketsData: ticketsData,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -91,19 +154,15 @@ router.post("/", async (req, res) => {
 
       const passengerId = p1.rows[0].pasazer_id;
       if (checkedBaggageId != "") {
-        const baggageNumber = normalBaggageId + (checkedBaggageId != 0);
-        for (let i = 0; i < baggageNumber; i++) {
-          const b_p = await pool.query(
-            "INSERT INTO bagaz_pasazer (bagazbagaz_id,pasazerpasazer_id) VALUES ($1,$2)",
-            [checkedBaggageId, passengerId]
-          );
-        }
-      } else {
         const b_p = await pool.query(
           "INSERT INTO bagaz_pasazer (bagazbagaz_id,pasazerpasazer_id) VALUES ($1,$2)",
-          [1, passengerId]
+          [checkedBaggageId, passengerId]
         );
       }
+      const b_p = await pool.query(
+        "INSERT INTO bagaz_pasazer (bagazbagaz_id,pasazerpasazer_id) VALUES ($1,$2)",
+        [1, passengerId]
+      );
 
       // uslugi pasazera
       const services = passenger.uslugi_dodatkowe;
