@@ -4,15 +4,14 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from "./routes/Root";
 import ErrorPage from "./error-page";
 import Flights from "./routes/Fligts";
-import Header from "./components/Header";
+
 import Login from "./routes/Login";
-import Sign from "./routes/Sign";
+import Register from "./routes/Register";
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <>
-        <Header />
         <Root />
       </>
     ),
@@ -22,10 +21,10 @@ const router = createBrowserRouter([
     path: "flights",
     element: (
       <>
-        <Header />
         <Flights />
       </>
     ),
+    errorElement: <ErrorPage />,
   },
   {
     path: "login",
@@ -36,17 +35,15 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "sign",
+    path: "register",
     element: (
       <>
-        <Sign />
+        <Register />
       </>
     ),
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <RouterProvider router={router} />
 );

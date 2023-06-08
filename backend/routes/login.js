@@ -13,23 +13,40 @@ router.post("/", async (req, res) => {
   };
   try {
     // Find the user in the database
-    const foundUser = await pool.query(`SELECT * FROM users WHERE email=$1`, [
-      user.email,
-    ]);
+    const foundUser = await pool.query(
+      `SELECT * FROM uzytkownik WHERE email=$1`,
+      [user.email]
+    );
     if (!foundUser.rows.length) {
       return res.status(404).json({ message: "User not found." });
     }
-    const { email, password } = await foundUser.rows[0];
-    const match = await bcrypt.compare(user.password, password);
+
+    const email = await foundUser.rows[0].email;
+    const haslo = await foundUser.rows[0].haslo;
+    const match = await bcrypt.compare(user.password, haslo);
     if (email != user.email && match) {
       return res.status(401).json({ message: "Invalid password" });
     }
+
+    const foundPerson = await pool.query(
+      "SELECT imie, nazwisko, wiek FROM osoba WHERE osoba_id=$1",
+      [foundUser.rows[0].id_osoba]
+    );
     // Generate a JWT token
-    const token = jwt.sign({ email: user.email }, secretKey, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      {
+        userImie: foundPerson.rows[0].imie,
+        userNazwisko: foundPerson.rows[0].nazwisko,
+        userWiek: foundPerson.rows[0].wiek,
+        userEmail: user.email,
+      },
+      process.env.SECRETKEY,
+      {
+        expiresIn: "100h",
+      }
+    );
     const updatedUser = await pool.query(
-      "UPDATE users SET jwt=$1 WHERE email=$2",
+      "UPDATE uzytkownik SET jwt=$1 WHERE email=$2",
       [token, user.email]
     );
     res.json({ token });

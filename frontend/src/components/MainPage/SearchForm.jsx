@@ -22,7 +22,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import InputAdornment from "@mui/material/InputAdornment";
 import CloseIcon from "@mui/icons-material/Close";
 import { grey, lightBlue } from "@mui/material/colors";
-function SearchForm() {
+function SearchForm(props) {
   const [locationsData, setLocationsData] = useState(null);
   const [flightsData, setFlightsData] = useState(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -111,8 +111,12 @@ function SearchForm() {
 
   const navigate = useNavigate();
 
+  const [user, setUser] = useState();
+
   useEffect(() => {
     // Fetch data when the component mounts
+    setUser(props.user);
+    console.log(user);
     airportData();
   }, []);
 
@@ -134,7 +138,7 @@ function SearchForm() {
   };
 
   const navigateToFlights = (jsonData) => {
-    navigate("/flights", { state: { jsonData } });
+    navigate("/flights", { state: { jsonData, user } });
   };
 
   const airportData = async () => {
@@ -256,178 +260,183 @@ function SearchForm() {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Container sx={{ maxWidth: "420px", marginTop: "50px" }} maxWidth={false}>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          // minHeight="60vh"
+    <>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Container
+          sx={{ maxWidth: "420px", marginTop: "50px" }}
+          maxWidth={false}
         >
-          <Grid container spacing={2} direction="column">
-            {/* Lotnisko poczatkowe */}
-            <Grid item>
-              <FormControl fullWidth>
-                <Autocomplete
-                  options={locationsData}
-                  getOptionLabel={(option) => option.nazwa}
-                  value={autocompleteOne}
-                  inputValue={source}
-                  onChange={handleAutocompleteOne}
-                  onInputChange={handleSourceChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Skąd"
-                      name="source"
-                      variant="outlined"
-                    />
-                  )}
-                />
-              </FormControl>
-            </Grid>
-            {/*           
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            // minHeight="60vh"
+          >
+            <Grid container spacing={2} direction="column">
+              {/* Lotnisko poczatkowe */}
+              <Grid item>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    options={locationsData}
+                    getOptionLabel={(option) => option.nazwa}
+                    value={autocompleteOne}
+                    inputValue={source}
+                    onChange={handleAutocompleteOne}
+                    onInputChange={handleSourceChange}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Skąd"
+                        name="source"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                </FormControl>
+              </Grid>
+              {/*           
 
 
             {/* Lotnisko koncowe */}
-            <Grid item>
-              <FormControl fullWidth>
-                <Autocomplete
-                  options={locationsData}
-                  getOptionLabel={(option) => option.nazwa}
-                  value={autocompleteTwo}
-                  inputValue={destination}
-                  onChange={handleAutocompleteTwo}
-                  onInputChange={handleDestinationChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Dokąd"
-                      name="destination"
-                      variant="outlined"
-                    />
-                  )}
-                />
-              </FormControl>
-            </Grid>
+              <Grid item>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    options={locationsData}
+                    getOptionLabel={(option) => option.nazwa}
+                    value={autocompleteTwo}
+                    inputValue={destination}
+                    onChange={handleAutocompleteTwo}
+                    onInputChange={handleDestinationChange}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Dokąd"
+                        name="destination"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                </FormControl>
+              </Grid>
 
-            {/* Data wylotu */}
-            <Grid item>
-              <FormControl fullWidth>
-                <DatePicker
-                  disablePast
-                  label="Wylot"
+              {/* Data wylotu */}
+              <Grid item>
+                <FormControl fullWidth>
+                  <DatePicker
+                    disablePast
+                    label="Wylot"
+                    fullWidth
+                    value={sourceDate}
+                    onChange={handleSourceDateChange}
+                    error={dateError}
+                  />
+                </FormControl>
+              </Grid>
+              {/* Data powrotu */}
+              <Grid item>
+                <FormControl fullWidth>
+                  <DatePicker
+                    disablePast
+                    label="Powrót"
+                    fullWidth
+                    value={destinationDate}
+                    onChange={handleDestinationDateChange}
+                    error={dateError}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Pasazerowie */}
+
+              <Grid item>
+                <FormControl fullWidth>
+                  <TextField
+                    ref={buttonRef}
+                    id="input-with-icon-textfield"
+                    label="Pasażerowie"
+                    onClick={handleClick}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="start">
+                          <IconButton
+                            color="inherit"
+                            size="large"
+                            onClick={handleClick}
+                            sx={{ padding: "0px" }}
+                          >
+                            <PeopleIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    variant="outlined"
+                  />
+                  <Menu
+                    marginThreshold={0}
+                    PaperProps={{
+                      style: {
+                        width: calculateButtonWidth(), // Set the menu width dynamically
+                      },
+                    }}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
+                  >
+                    {passengerNames.map((name) => {
+                      return (
+                        <MenuItem>
+                          <Passenger
+                            name={name}
+                            handlePassengersIncreaseChange={(name) =>
+                              handlePassengersIncreaseChange(name)
+                            }
+                            handlePassengersDecreaseChange={(name) =>
+                              handlePassengersDecreaseChange(name)
+                            }
+                            passengers={passengers}
+                          />
+                        </MenuItem>
+                      );
+                    })}
+                  </Menu>
+                </FormControl>
+              </Grid>
+
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
                   fullWidth
-                  value={sourceDate}
-                  onChange={handleSourceDateChange}
-                  error={dateError}
-                />
-              </FormControl>
-            </Grid>
-            {/* Data powrotu */}
-            <Grid item>
-              <FormControl fullWidth>
-                <DatePicker
-                  disablePast
-                  label="Powrót"
-                  fullWidth
-                  value={destinationDate}
-                  onChange={handleDestinationDateChange}
-                  error={dateError}
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Pasazerowie */}
-
-            <Grid item>
-              <FormControl fullWidth>
-                <TextField
-                  ref={buttonRef}
-                  id="input-with-icon-textfield"
-                  label="Pasażerowie"
-                  onClick={handleClick}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton
-                          color="inherit"
-                          size="large"
-                          onClick={handleClick}
-                          sx={{ padding: "0px" }}
-                        >
-                          <PeopleIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  variant="outlined"
-                />
-                <Menu
-                  marginThreshold={0}
-                  PaperProps={{
-                    style: {
-                      width: calculateButtonWidth(), // Set the menu width dynamically
-                    },
-                  }}
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
+                  onClick={searchFlights}
                 >
-                  {passengerNames.map((name) => {
-                    return (
-                      <MenuItem>
-                        <Passenger
-                          name={name}
-                          handlePassengersIncreaseChange={(name) =>
-                            handlePassengersIncreaseChange(name)
-                          }
-                          handlePassengersDecreaseChange={(name) =>
-                            handlePassengersDecreaseChange(name)
-                          }
-                          passengers={passengers}
-                        />
-                      </MenuItem>
-                    );
-                  })}
-                </Menu>
-              </FormControl>
+                  Wyszukaj
+                </Button>
+              </Grid>
             </Grid>
-
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                onClick={searchFlights}
-              >
-                Wyszukaj
-              </Button>
-            </Grid>
-          </Grid>
-          {isAlertOpen ? (
-            <Snackbar
-              open={isAlertOpen}
-              autoHideDuration={2000}
-              onClose={handleAlertClose}
-              message="Brak wyszukanych lotów."
-              action={action}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-          ) : (
-            ""
-          )}
-        </Box>
-      </Container>
-    </LocalizationProvider>
+            {isAlertOpen ? (
+              <Snackbar
+                open={isAlertOpen}
+                autoHideDuration={2000}
+                onClose={handleAlertClose}
+                message="Brak wyszukanych lotów."
+                action={action}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              />
+            ) : (
+              ""
+            )}
+          </Box>
+        </Container>
+      </LocalizationProvider>
+    </>
   );
 }
 

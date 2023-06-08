@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Header from "../components/Header";
 import {
   Card,
   Grid,
@@ -13,13 +14,13 @@ import {
   CardHeader,
   CardContent,
 } from "@mui/material";
+
 import Ticket from "../components/FlightsPage/Ticket";
 import UndoIcon from "@mui/icons-material/Undo";
 import { useNavigate, useLocation } from "react-router-dom";
 import { red } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 import "../../src/assets/styles.css";
-
 const Item = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -33,6 +34,14 @@ const FlightsPage = () => {
   const location = useLocation();
   const flightsData = location.state.jsonData.flightsData;
   const passengersInfo = location.state.jsonData.passengers;
+  const userInfo = location.state.user;
+
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    setUser(userInfo);
+    console.log(userInfo);
+  }, []);
 
   const [openTicketDialog, setOpenTicketDialog] = useState(false);
   const openDialog = () => {
@@ -42,121 +51,118 @@ const FlightsPage = () => {
     setOpenTicketDialog(false);
   };
 
-  const user = {
-    imie: "Jan",
-    nazwisko: "Nowak",
-    wiek: 35,
-  };
-
   return (
-    <Container sx={{ overflow: "hidden" }}>
-      <Stack direction="row" sx={{ mt: "30px" }} alignItems="center">
-        <Item>
-          <Typography variant="h3">Wyszukane loty</Typography>
-        </Item>
-        <Item>
-          <Button
-            variant="contained"
-            startIcon={<UndoIcon />}
-            onClick={() => {
-              navigate(-1);
-            }}
-          >
-            Cofnij
-          </Button>
-        </Item>
-      </Stack>
-      <Divider sx={{ my: 2 }} />
-      <Box sx={{ height: "700px" }} className="hideOnScroll">
-        <Grid container spacing={4} maxWidth="lg">
-          {flightsData.map((flight, key) => (
-            <Grid item xs={12} sm={6} md={6} key={key}>
-              <Grid item>
-                <Card sx={{ border: "1px solid black" }}>
-                  <CardHeader title={"Lot nr. " + flight.kod_lotu} />
-                  <Divider />
+    <>
+      {user && <Header user={user} />}
+      <Container sx={{ overflow: "hidden" }}>
+        <Stack direction="row" sx={{ mt: "30px" }} alignItems="center">
+          <Item>
+            <Typography variant="h3">Wyszukane loty</Typography>
+          </Item>
+          <Item>
+            <Button
+              variant="contained"
+              startIcon={<UndoIcon />}
+              onClick={() => {
+                navigate(-1);
+              }}
+            >
+              Cofnij
+            </Button>
+          </Item>
+        </Stack>
+        <Divider sx={{ my: 2 }} />
+        <Box sx={{ height: "700px" }} className="hideOnScroll">
+          <Grid container spacing={4} maxWidth="lg">
+            {flightsData.map((flight, key) => (
+              <Grid item xs={12} sm={6} md={6} key={key}>
+                <Grid item>
+                  <Card sx={{ border: "1px solid black" }}>
+                    <CardHeader title={"Lot nr. " + flight.kod_lotu} />
+                    <Divider />
 
-                  <CardContent>
-                    <Grid container direction="row">
+                    <CardContent>
+                      <Grid container direction="row">
+                        <Grid item>
+                          <Typography variant="body1">
+                            Z:{" "}
+                            <span style={{ fontWeight: "bold" }}>
+                              {flight.m_pocz}
+                            </span>{" "}
+                          </Typography>
+                        </Grid>
+                        <Grid item>
+                          <Typography variant="body1">
+                            -{">"} Do:{" "}
+                            <span style={{ fontWeight: "bold" }}>
+                              {flight.m_doc}
+                            </span>
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Typography variant="body1">
+                        Data wylotu:{" "}
+                        <span style={{ fontWeight: "bold" }}>
+                          {flight.data_wylotu}
+                        </span>
+                        {" - "}
+                        Data przylotu:{" "}
+                        <span style={{ fontWeight: "bold" }}>
+                          {flight.data_przylotu}
+                        </span>{" "}
+                      </Typography>
                       <Grid item>
                         <Typography variant="body1">
-                          Z:{" "}
+                          Czas wylotu:{" "}
                           <span style={{ fontWeight: "bold" }}>
-                            {flight.m_pocz}
+                            {flight.czas_wylotu}
+                          </span>
+                          {" - "}
+                          Czas przylotu:{" "}
+                          <span style={{ fontWeight: "bold" }}>
+                            {flight.czas_przylotu}
                           </span>{" "}
                         </Typography>
                       </Grid>
-                      <Grid item>
-                        <Typography variant="body1">
-                          -{">"} Do:{" "}
-                          <span style={{ fontWeight: "bold" }}>
-                            {flight.m_doc}
-                          </span>
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                    <Typography variant="body1">
-                      Data wylotu:{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {flight.data_wylotu}
-                      </span>
-                      {" - "}
-                      Data przylotu:{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {flight.data_przylotu}
-                      </span>{" "}
-                    </Typography>
-                    <Grid item>
                       <Typography variant="body1">
-                        Czas wylotu:{" "}
-                        <span style={{ fontWeight: "bold" }}>
-                          {flight.czas_wylotu}
+                        Cena bazowa: {"  "}
+                        <span
+                          style={{
+                            fontSize: "1.5rem",
+                            color: red[700],
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {flight.cena + ".00zł / os"}
                         </span>
-                        {" - "}
-                        Czas przylotu:{" "}
-                        <span style={{ fontWeight: "bold" }}>
-                          {flight.czas_przylotu}
-                        </span>{" "}
-                      </Typography>
-                    </Grid>
-                    <Typography variant="body1">
-                      Cena: {"  "}
-                      <span
-                        style={{
-                          fontSize: "1.5rem",
-                          color: red[700],
-                          fontWeight: "bold",
-                        }}
+                      </Typography>{" "}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={openDialog}
                       >
-                        {flight.cena + ".00zł"}
-                      </span>
-                    </Typography>{" "}
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={openDialog}
-                    >
-                      Wybierz
-                    </Button>
-                    {openTicketDialog ? (
-                      <Ticket
-                        open={openTicketDialog}
-                        handleClose={closeDialog}
-                        flightInfo={flight}
-                        passengers={passengersInfo}
-                        user={user}
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </CardContent>
-                </Card>
+                        Wybierz
+                      </Button>
+                      {openTicketDialog ? (
+                        <Ticket
+                          open={openTicketDialog}
+                          handleClose={closeDialog}
+                          flight={flight}
+                          passengers={passengersInfo}
+                          user={user}
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    </Container>
+            ))}
+          </Grid>
+        </Box>
+      </Container>
+    </>
   );
 };
 

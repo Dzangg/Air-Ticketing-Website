@@ -1,8 +1,10 @@
 import { useRouteError } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@mui/material";
 export default function ErrorPage() {
   const error = useRouteError();
   console.error(error);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -17,6 +19,7 @@ export default function ErrorPage() {
       <p>
         <i>{error.statusText || error.message}</i>
       </p>
+      <Link to={"/"}> Strona główna</Link>
     </div>
   );
 }

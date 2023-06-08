@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Container, Box, Typography, TextField, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-export default function Login() {
+export default function Register() {
   localStorage.removeItem("token");
-
   const navigate = useNavigate();
   const [user, setUser] = useState({
+    imie: "",
+    nazwisko: "",
+    wiek: "",
     email: "",
     password: "",
   });
@@ -18,18 +20,20 @@ export default function Login() {
   };
 
   const validateInputs = () => {
-    return user.email == "" || user.password == "";
+    return (
+      user.imie == "" ||
+      user.nazwisko == "" ||
+      user.wiek == "" ||
+      user.email == "" ||
+      user.password == ""
+    );
   };
 
-  const navigateToMainPage = (jsonData) => {
-    navigate("/", { state: { jsonData } });
-  };
-
-  const [token, setToken] = useState();
-  const loginUser = async () => {
+  const registerUser = async () => {
+    console.log(user);
     if (!validateInputs()) {
       try {
-        const response = await fetch("http://localhost:3000/login", {
+        const response = await fetch("http://localhost:3000/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -41,10 +45,7 @@ export default function Login() {
           throw new Error("Error fetching data: " + response.status);
         }
         const jsonData = await response.json();
-
-        setToken(jsonData.token);
-        navigateToMainPage(jsonData);
-        localStorage.setItem("token", jsonData.token);
+        navigate("/login");
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -62,14 +63,37 @@ export default function Login() {
     >
       <Box
         style={{
+          display: "flex",
           flexDirection: "column",
           width: "100%",
         }}
       >
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Logowanie
+          Rejestracja
         </Typography>
 
+        <TextField
+          name="imie"
+          label="imie"
+          onChange={handleUserChange}
+          fullWidth
+          margin="normal"
+        />
+
+        <TextField
+          name="nazwisko"
+          label="nazwisko"
+          onChange={handleUserChange}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          name="wiek"
+          label="wiek"
+          onChange={handleUserChange}
+          fullWidth
+          margin="normal"
+        />
         <TextField
           name="email"
           label="email"
@@ -85,19 +109,13 @@ export default function Login() {
           fullWidth
           margin="normal"
         />
-        <Button variant="contained" type="submit" onClick={loginUser} fullWidth>
-          Zaloguj
-        </Button>
         <Button
           variant="contained"
           type="submit"
+          onClick={registerUser}
           fullWidth
-          sx={{ mt: "10px" }}
-          onClick={() => {
-            navigate("/register");
-          }}
         >
-          Rejestracja
+          Rejestruj
         </Button>
       </Box>
     </Container>

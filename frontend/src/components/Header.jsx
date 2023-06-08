@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LoginIcon from "@mui/icons-material/Login";
@@ -15,10 +15,9 @@ import {
   MenuItem,
 } from "@mui/material";
 
-function Header() {
+function Header(props) {
   const navigate = useNavigate();
-
-  const [loginStatus, setLoginStatus] = useState(false);
+  const token = localStorage.getItem("token");
 
   const [anchorEl, setAnchorEl] = useState(0);
 
@@ -27,14 +26,22 @@ function Header() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (props) => {
     setAnchorEl(null);
   };
+
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    setUser(props.user);
+  }, []);
+
   return (
     <AppBar position="static" color="inherit">
       <Toolbar
         sx={{ display: "flex !important", justifyContent: "right !important" }}
       >
+        {user && user.userImie}
         <IconButton color="inherit" size="large" onClick={handleClick}>
           <AccountCircleIcon fontSize="large" />
         </IconButton>
@@ -42,15 +49,20 @@ function Header() {
         <Divider />
 
         <Menu anchorEl={anchorEl} open={open} onClick={handleClose}>
-          {loginStatus ? (
+          {token ? (
             <>
               <MenuItem onClose={handleClose}>
-                <AccountCircleIcon /> Account
+                <AccountCircleIcon /> Bilety
               </MenuItem>
 
               <Divider />
 
-              <MenuItem onClose={handleClose}>
+              <MenuItem
+                onClose={handleClose}
+                onClick={() => {
+                  navigate("/login");
+                }}
+              >
                 <LogoutIcon /> Logout
               </MenuItem>
             </>
@@ -58,12 +70,19 @@ function Header() {
             <>
               <MenuItem
                 onClose={handleClose}
-                onClick={() => navigate("/login")}
+                onClick={() => {
+                  navigate("/login");
+                }}
               >
                 <LoginIcon /> Login
               </MenuItem>
 
-              <MenuItem onClose={handleClose} onClick={() => navigate("/sign")}>
+              <MenuItem
+                onClose={handleClose}
+                onClick={() => {
+                  navigate("/register");
+                }}
+              >
                 <AppRegistrationIcon /> Register
               </MenuItem>
             </>

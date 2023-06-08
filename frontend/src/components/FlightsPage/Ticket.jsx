@@ -7,6 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import { useMediaQuery, useTheme } from "@mui/material";
 import StepperDialog from "./StepperDialog";
+
 export default function Ticket(props) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
@@ -21,9 +22,25 @@ export default function Ticket(props) {
     props.handleClose();
     setOpen(false);
   };
+
+  const [user, setUser] = useState();
+
   useEffect(() => {
     handleClickOpen();
-  }, []);
+    setUser(props.user);
+    console.log(user);
+  });
+
+  const renderDialog = () => {
+    return (
+      <StepperDialog
+        user={user}
+        handleClose={handleClose}
+        passengers={passengers}
+        flightPrice={props.flight.cena}
+      />
+    );
+  };
 
   return (
     <>
@@ -32,17 +49,12 @@ export default function Ticket(props) {
         open={open}
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
+        maxWidth
       >
         <DialogTitle id="responsive-dialog-title">
-          {"Rezerwacja lotu nr: "} {props.flightInfo.kod_lotu}
+          {"Rezerwacja lotu nr: "} {props.flight.kod_lotu}
         </DialogTitle>
-        <DialogContent>
-          <StepperDialog
-            handleClose={handleClose}
-            passengers={passengers}
-            user={props.user}
-          />
-        </DialogContent>
+        <DialogContent>{user ? renderDialog() : ""}</DialogContent>
       </Dialog>
     </>
   );
