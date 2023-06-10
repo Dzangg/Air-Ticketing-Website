@@ -27,7 +27,6 @@ router.post("/", async (req, res) => {
       .json({ message: "User with this email already exists." });
   }
 
-  console.log("siema");
   // generate salt && hashedPassword
   bcrypt.genSalt(parseInt(process.env.SALTROUNDS), async (err, salt) => {
     if (err) {

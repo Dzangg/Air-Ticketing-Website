@@ -34,6 +34,7 @@ const router = createBrowserRouter([
         <Login />
       </>
     ),
+    errorElement: <ErrorPage />,
   },
   {
     path: "register",
@@ -42,6 +43,7 @@ const router = createBrowserRouter([
         <Register />
       </>
     ),
+    errorElement: <ErrorPage />,
   },
   {
     path: "account",
@@ -50,6 +52,7 @@ const router = createBrowserRouter([
         <UserAccount />
       </>
     ),
+    errorElement: <ErrorPage />,
   },
   {
     path: "admin",
@@ -58,6 +61,7 @@ const router = createBrowserRouter([
         <AddFlights />
       </>
     ),
+    errorElement: <ErrorPage />,
   },
 ]);
 

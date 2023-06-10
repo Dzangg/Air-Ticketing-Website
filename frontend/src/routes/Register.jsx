@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Register() {
   localStorage.removeItem("token");
   const navigate = useNavigate();
+  const [error, setError] = useState(false);
   const [user, setUser] = useState({
     imie: "",
     nazwisko: "",
@@ -17,6 +18,7 @@ export default function Register() {
       ...prevValues,
       [name]: value,
     }));
+    setError(false);
   };
 
   const validateInputs = () => {
@@ -47,8 +49,11 @@ export default function Register() {
         const jsonData = await response.json();
         navigate("/login");
       } catch (error) {
+        setError(true);
         console.error("Error fetching data:", error);
       }
+    } else {
+      setError(true);
     }
   };
 
@@ -117,6 +122,15 @@ export default function Register() {
         >
           Rejestruj
         </Button>
+        <Button
+          variant="contained"
+          onClick={() => navigate("/login")}
+          fullWidth
+          sx={{ mt: "10px" }}
+        >
+          Logowanie...
+        </Button>
+        {error ? <>Błędne dane</> : ""}
       </Box>
     </Container>
   );
