@@ -22,6 +22,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import InputAdornment from "@mui/material/InputAdornment";
 import CloseIcon from "@mui/icons-material/Close";
 import { grey, lightBlue } from "@mui/material/colors";
+import { DataArrayRounded } from "@mui/icons-material";
 function SearchForm(props) {
   const [locationsData, setLocationsData] = useState(null);
   const [flightsData, setFlightsData] = useState(null);
@@ -37,21 +38,18 @@ function SearchForm(props) {
   const [autocompleteTwo, setAutocompleteTwo] = useState(null);
 
   const handleSourceDateChange = (date) => {
-    if (date < new Date()) {
-      setDateError(true);
-    } else {
-      setDateError(false);
-      setSourceDate(date);
-    }
+    console.log(date);
+    setSourceDate(date);
+    // if (date < new Date()) {
+    //   setDateError(true);
+    // } else {
+    //   setDateError(false);
+    //   setSourceDate(date);
+    // }
   };
 
   const handleDestinationDateChange = (date) => {
-    if (date < new Date()) {
-      setDateError(true);
-    } else {
-      setDateError(false);
-      setDestinationDate(date);
-    }
+    setDestinationDate(date);
   };
 
   const handleAutocompleteOne = (event, value) => {
@@ -71,7 +69,7 @@ function SearchForm(props) {
   };
 
   const [passengers, setPassengers] = useState({
-    adults: 0,
+    adults: 1,
     teenagers: 0,
     kids: 0,
     toddlers: 0,
@@ -116,7 +114,7 @@ function SearchForm(props) {
   useEffect(() => {
     // Fetch data when the component mounts
     setUser(props.user);
-    console.log(user);
+    // console.log(user);
     airportData();
   }, []);
 
@@ -126,11 +124,10 @@ function SearchForm(props) {
       destination != "" &&
       sourceDate != "" &&
       destinationDate != "" &&
-      (passengers.adults != 0 ||
-        passengers.teenagers != 0 ||
-        passengers.kids != 0 ||
-        passengers.toddlers != 0);
+      passengers.adults >= 1;
 
+    console.log(passengers.adults >= 1);
+    console.log("result " + result);
     if (result) {
       return true;
     }
@@ -175,7 +172,7 @@ function SearchForm(props) {
 
   const searchFlights = async () => {
     try {
-      const result = validateInputs();
+      const result = await validateInputs();
       if (!result) {
         console.log("Fill the inputs.");
         return;
@@ -197,7 +194,7 @@ function SearchForm(props) {
       console.log("Wysyłane dane: ");
       console.log(inputData);
 
-      const response = await fetch("http://localhost:3000/flights", {
+      const response = await fetch("http://localhost:3000/flights/search", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

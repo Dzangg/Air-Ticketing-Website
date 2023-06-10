@@ -14,6 +14,8 @@ export default function Ticket(props) {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const passengers = props.passengers;
 
+  console.log("ticket pasazerowie: " + JSON.stringify(passengers));
+
   const handleClickOpen = () => {
     setOpen(true);
   };

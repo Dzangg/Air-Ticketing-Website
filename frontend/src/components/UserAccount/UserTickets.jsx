@@ -52,8 +52,11 @@ export default function UserTickets(props) {
         }
       );
       const jsonData = await response.json();
-      setTickets(jsonData);
-      // console.log(jsonData);
+      if (jsonData.ticketsData.length == 0) {
+        setTickets(null);
+      } else {
+        setTickets(jsonData);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -64,7 +67,7 @@ export default function UserTickets(props) {
     console.log(tickets.ticketsData[0].passengerData[0].passenger.imie);
     return (
       <>
-        <Container sx={{ overflow: "hidden" }}>
+        <Container>
           <Stack direction="row" sx={{ mt: "30px" }} alignItems="center">
             <Item>
               <Typography variant="h3">Bilety</Typography>
@@ -89,8 +92,19 @@ export default function UserTickets(props) {
                   <Grid item>
                     <Card sx={{ border: "1px solid black" }}>
                       <CardHeader title={"Bilet nr. " + (key + 1)} />
+
                       <Divider />
                       <CardContent>
+                        <Typography variant="h5">
+                          {tickets.ticketsData[key].flightData.l1 +
+                            " -> " +
+                            tickets.ticketsData[key].flightData.l2 +
+                            "  [" +
+                            tickets.ticketsData[key].flightData.data_wylotu +
+                            ", " +
+                            tickets.ticketsData[key].flightData.data_przylotu +
+                            "]"}
+                        </Typography>
                         {ticket.passengerData.map((person, index) => {
                           return (
                             <>
@@ -222,6 +236,26 @@ export default function UserTickets(props) {
       </>
     );
   } else {
-    return <div>loading...</div>;
+    return (
+      <div>
+        <Button
+          variant="contained"
+          startIcon={<UndoIcon />}
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          Strona główna
+        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        ></Box>
+        <Typography variant="h1">Brak biletów</Typography>
+      </div>
+    );
   }
 }

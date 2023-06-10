@@ -8,13 +8,14 @@ export default function Passenger(props) {
   const pName = {
     name: "",
   };
+
   if (props.name == "adults") {
     pName.name = "dorosly(18>)";
   } else if (props.name == "teenagers") {
     pName.name = "nastolatek(17-13)";
   } else if (props.name == "kids") {
     pName.name = "dziecko(12-3)";
-  } else {
+  } else if (props.name == "toddlers") {
     pName.name = "niemowle(2-0)";
   }
 

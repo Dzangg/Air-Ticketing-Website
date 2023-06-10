@@ -31,7 +31,7 @@ router.get("/:userEmail", async (req, res) => {
       `SELECT * FROM bilet WHERE uzytkownik_id=$1`,
       [userId]
     );
-    console.log(tickets.rows);
+
     const ticketsData = [];
     for (const ticket of tickets.rows) {
       const ticketId = ticket.bilet_id;
@@ -75,14 +75,30 @@ router.get("/:userEmail", async (req, res) => {
 
         passengerData.push(...data);
       }
+
+      const lot = await pool.query(
+        "SELECT TO_CHAR(data_wylotu, 'YYYY-MM-DD') AS data_wylotu, TO_CHAR(data_przylotu, 'YYYY-MM-DD') AS data_przylotu FROM lot WHERE lot_ID=$1",
+        [ticket.lot_id]
+      );
+
+      const airport = await pool.query(
+        "SELECT lw.nazwa AS l1, lp.nazwa AS l2 FROM Lot l JOIN lotnisko lw ON l.lotnisko_wylotu_id=lw.lotnisko_id JOIN lotnisko lp ON l.lotnisko_przylotu_id=lp.lotnisko_id WHERE lot_ID=$1",
+        [ticket.lot_id]
+      );
+
+      const flightData = {
+        data_wylotu: lot.rows[0].data_wylotu,
+        data_przylotu: lot.rows[0].data_przylotu,
+        l1: airport.rows[0].l1,
+        l2: airport.rows[0].l2,
+      };
       ticketsData.push({
         passengerData: passengerData,
         ticketPrice: ticketPrice,
         ticketStatus: ticketStatus,
+        flightData: flightData,
       });
     }
-
-    console.log(ticketsData);
     res.send({
       ticketsData: ticketsData,
     });
@@ -96,16 +112,11 @@ router.post("/", async (req, res) => {
   const passengersData = req.body.passengersData;
   const flightId = req.body.flightId;
   try {
-    console.log(passengersData);
-    console.log("lot id: " + flightId);
-
     // uzytkownik
     const user = await pool.query(
       "SELECT uzytkownik_ID FROM uzytkownik WHERE email=$1",
       [passengersData[0].email]
     );
-    const userId = user.rows[0].uzytkownik_id;
-    console.log("user id: " + userId);
 
     const kod_biletu = "1234";
     const status = "aktywny";
@@ -113,7 +124,6 @@ router.post("/", async (req, res) => {
       (total, passenger) => total + passenger.koszt,
       0
     );
-    console.log("kod biletu: " + kod_biletu);
 
     // bilet
     const ticket = await pool.query(
@@ -128,7 +138,6 @@ router.post("/", async (req, res) => {
       [flightId]
     );
     const airplaneId = airplane.rows[0].samolot_id;
-    console.log("samolotid: " + airplaneId);
 
     // pasazerowie
     passengersData.forEach(async (passenger, index) => {
@@ -175,6 +184,11 @@ router.post("/", async (req, res) => {
         });
       }
     });
+
+    const updateAvailableSeats = await pool.query(
+      "UPDATE lot_szczegoly SET liczba_wolnych_miejsc=liczba_wolnych_miejsc-$1 WHERE lot_id=$2",
+      [passengersData.length, flightId]
+    );
 
     res.status(201).json({ message: "Ticket created successfully" });
   } catch (err) {

@@ -25,7 +25,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
+import { useNavigate } from "react-router-dom";
 // const flightSeats = [
 //   "A1",
 //   "A2",
@@ -45,7 +45,8 @@ import Paper from "@mui/material/Paper";
 // ];
 
 export default function StepperDialog(props) {
-  //console.log(props.user);
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [steps, setSteps] = useState();
   const [flightSeats, setFlightSeats] = useState();
@@ -83,15 +84,14 @@ export default function StepperDialog(props) {
       updatedPassengers[0].wiek = props.user.userWiek;
       updatedPassengers[0].email = props.user.userEmail;
       updatedPassengers[0].type = "dorosly";
-
       setPassengerData(updatedPassengers);
+      generateSteps();
     }
   }, [props.user]);
 
   useEffect(() => {
     generateSteps();
     setPassengersCost();
-    console.log(passengersData);
   }, [passengersData, ticketCost]);
 
   const generateSteps = () => {
@@ -446,6 +446,7 @@ export default function StepperDialog(props) {
       });
       const jsonData = await response.json();
       console.log(jsonData);
+      navigate("/account");
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -476,40 +477,24 @@ export default function StepperDialog(props) {
   passengers.forEach((num) => (numberOfPassengers += num));
 
   if (numberOfPassengers > 1) {
-    for (let i = 0; i < numberOfPassengers; i++) {
-      if (passengers[i] > 0) {
-        const type = {
-          name: "",
-        };
-        if (i == 0) {
-          type.name = "dorosły";
-        } else if (i == 1) {
-          type.name = "nastolatek";
-        } else if (i == 2) {
-          type.name = "dziecko";
-        } else {
-          type.name = "niemowle";
-        }
-        // Dorosly default + 1
+    passengers.forEach((num, index) => {
+      if (num > 0) {
+        for (let i = 0; i < num; i++) {
+          const type = {
+            name: "",
+          };
+          if (index == 0) {
+            type.name = "dorosły";
+          } else if (index == 1) {
+            type.name = "nastolatek";
+          } else if (index == 2) {
+            type.name = "dziecko";
+          } else if (index == 3) {
+            type.name = "niemowle";
+          }
 
-        if (i == 0 && passengers[i] == 1) {
-          continue;
-        } else {
-          if (passengers[i] > 1) {
-            for (let j = 0; j < passengers[i]; j++) {
-              passengersLabelsData.push({
-                imie: "",
-                nazwisko: "",
-                wiek: "",
-                miejsce: "",
-                miejsceWybrane: false,
-                bagaz_podreczny: "",
-                bagaz_rejestrowany: "",
-                type: type.name,
-                uslugi_dodatkowe: [],
-                koszt: "",
-              });
-            }
+          if (index == 0 && passengers[i] == 1) {
+            continue;
           } else {
             passengersLabelsData.push({
               imie: "",
@@ -526,7 +511,7 @@ export default function StepperDialog(props) {
           }
         }
       }
-    }
+    });
   }
 
   const handleSeatChange = (event, index) => {
@@ -599,11 +584,6 @@ export default function StepperDialog(props) {
       subSum += seat + luggage + usluga;
       sum += subSum;
       passenger.koszt = subSum + props.flightPrice;
-
-      // console.log("seat " + seat);
-      // console.log("luggage " + luggage);
-      // console.log("usluga " + usluga);
-      // console.log(subSum);
     });
     setTicketCost(sum + props.flightPrice * numberOfPassengers);
   };
@@ -611,6 +591,8 @@ export default function StepperDialog(props) {
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = async () => {
+    generateSteps();
+
     if (activeStep == 0) {
       const result = await validateStepOne();
       if (result) {

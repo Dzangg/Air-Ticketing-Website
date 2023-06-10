@@ -39,6 +39,7 @@ const FlightsPage = () => {
 
   const flightsData = location.state.jsonData.flightsData;
   const passengersInfo = location.state.jsonData.passengers;
+  console.log("pasazerowie: " + JSON.stringify(passengersInfo));
   const userInfo = location.state.user;
 
   const [user, setUser] = useState();
@@ -127,6 +128,14 @@ const FlightsPage = () => {
                           <span style={{ fontWeight: "bold" }}>
                             {flight.czas_przylotu}
                           </span>{" "}
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography variant="body1">
+                          Klasa lotnicza:{" "}
+                          <span style={{ fontWeight: "bold" }}>
+                            {flight.klasa}
+                          </span>
                         </Typography>
                       </Grid>
                       <Typography variant="body1">

@@ -7,7 +7,7 @@ import Flights from "./routes/Fligts";
 import Login from "./routes/Login";
 import Register from "./routes/Register";
 import UserAccount from "./components/UserAccount/UserAccount";
-
+import AddFlights from "./components/AdminPage/AddFlights";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -48,6 +48,14 @@ const router = createBrowserRouter([
     element: (
       <>
         <UserAccount />
+      </>
+    ),
+  },
+  {
+    path: "admin",
+    element: (
+      <>
+        <AddFlights />
       </>
     ),
   },
