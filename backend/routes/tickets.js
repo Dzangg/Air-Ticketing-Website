@@ -112,16 +112,12 @@ router.post("/", async (req, res) => {
   const passengersData = req.body.passengersData;
   const flightId = req.body.flightId;
   try {
-    console.log(passengersData);
-    console.log("lot id: " + flightId);
-
     // uzytkownik
     const user = await pool.query(
       "SELECT uzytkownik_ID FROM uzytkownik WHERE email=$1",
       [passengersData[0].email]
     );
     const userId = user.rows[0].uzytkownik_id;
-    console.log("user id: " + userId);
 
     const kod_biletu = "1234";
     const status = "aktywny";
@@ -129,7 +125,6 @@ router.post("/", async (req, res) => {
       (total, passenger) => total + passenger.koszt,
       0
     );
-    console.log("kod biletu: " + kod_biletu);
 
     // bilet
     const ticket = await pool.query(
@@ -144,7 +139,6 @@ router.post("/", async (req, res) => {
       [flightId]
     );
     const airplaneId = airplane.rows[0].samolot_id;
-    console.log("samolotid: " + airplaneId);
 
     // pasazerowie
     passengersData.forEach(async (passenger, index) => {

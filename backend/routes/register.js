@@ -53,7 +53,6 @@ router.post("/", async (req, res) => {
             expiresIn: "100h",
           }
         );
-        console.log(token);
 
         const newPerson = await pool.query(
           "INSERT INTO osoba (imie,nazwisko,wiek) VALUES ($1,$2,$3) RETURNING osoba_id",
