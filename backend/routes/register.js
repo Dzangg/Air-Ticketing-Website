@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
   // check if user exists
 
   const foundUser = await pool.query(
-    `SELECT EXISTS (SELECT 1 FROM users WHERE email=$1)`,
+    `SELECT EXISTS (SELECT 1 FROM uzytkownik WHERE email=$1)`,
     [user.email]
   );
   if (foundUser.rows[0].exists) {
@@ -26,6 +26,8 @@ router.post("/", async (req, res) => {
       .status(403)
       .json({ message: "User with this email already exists." });
   }
+
+  console.log("siema");
   // generate salt && hashedPassword
   bcrypt.genSalt(parseInt(process.env.SALTROUNDS), async (err, salt) => {
     if (err) {

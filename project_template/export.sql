@@ -846,6 +846,465 @@ ALTER TABLE ONLY public.znizka ALTER COLUMN znizka_id SET DEFAULT nextval('publi
 
 
 --
+-- Data for Name: adres; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.adres (osoba_id, ulica, numer_domu, numer_mieszkania, kod_pocztowy, miasto, kraj) FROM stdin;
+1	Krakowska	123	4A	12-345	Kraków	Polska
+2	Warszawska	456	7B	45-678	Warszawa	Polska
+3	Gdańska	789	10	67-890	Gdańsk	Polska
+4	Łódzka	111	1	90-123	Łódź	Polska
+5	Poznańska	222	2B	23-456	Poznań	Polska
+\.
+
+
+--
+-- Data for Name: bagaz; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.bagaz (bagaz_id, typ_bagazu, waga, wymiary, cena) FROM stdin;
+1	Bagaż podręczny	10 kg	40x30x20 cm	0
+2	Bagaż rejestrowany	10 kg	149x119x171 cm	106
+3	Bagaż rejestrowany	20 kg	149x119x171 cm	135
+4	Bagaż rejestrowany	30 kg	149x119x171 cm	250
+\.
+
+
+--
+-- Data for Name: bagaz_pasazer; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.bagaz_pasazer (bagaz_pasazer_id, bagazbagaz_id, pasazerpasazer_id) FROM stdin;
+20	1	49
+21	1	50
+22	1	51
+23	1	52
+\.
+
+
+--
+-- Data for Name: bilet; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.bilet (bilet_id, uzytkownik_id, lot_id, kod, status, cena) FROM stdin;
+1	1	1	ABC123	Aktywny	0
+2	2	2	DEF456	Aktywny	0
+3	3	3	GHI789	Anulowany	0
+4	4	4	JKL012	Aktywny	0
+5	5	5	MNO345	Anulowany	0
+46	21	20	1234	aktywny	800
+\.
+
+
+--
+-- Data for Name: cennik; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.cennik (cennik_id, klasa, cena, znizka_id) FROM stdin;
+1	Ekonomiczna	200	\N
+2	Premium	400	\N
+3	Biznesowa	800	\N
+4	Pierwsza klasa	1500	\N
+\.
+
+
+--
+-- Data for Name: lot; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.lot (lot_id, cennik_id, zaloga_id, lotnisko_wylotu_id, lotnisko_przylotu_id, status, data_wylotu, data_przylotu, kod_lotu) FROM stdin;
+4	4	1	2	1	Zrealizowany	2023-06-04 00:00:00	2023-06-04 00:00:00	KW318
+2	2	2	3	4	Zaplanowany	2023-06-10 00:00:00	2023-06-10 00:00:00	GK098
+5	4	3	4	2	Anulowany	2023-06-05 00:00:00	2023-06-05 00:00:00	KK666
+1	1	1	1	2	Zaplanowany	2023-06-10 16:45:00	2023-06-10 19:20:00	WK545
+3	3	2	1	3	Opóźniony	2023-06-12 00:00:00	2023-06-12 00:00:00	WG220
+20	1	1	3	10	Zaplanowany	2023-06-25 06:45:00	2023-06-25 08:00:00	GG000
+\.
+
+
+--
+-- Data for Name: lot_szczegoly; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.lot_szczegoly (lot_id, samolot_id, opoznienie, kod_bramki, liczba_wolnych_miejsc) FROM stdin;
+2	2	\N	B2	120
+3	3	\N	C3	100
+4	4	15	D4	180
+5	5	20	E5	200
+1	1	\N	A1	146
+20	13	0	A1	392
+\.
+
+
+--
+-- Data for Name: lotnisko; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.lotnisko (lotnisko_id, kod_iata, nazwa) FROM stdin;
+1	WAW	Warszawa
+2	KRK	Krakow
+4	KTW	Katowice
+5	POZ	Poznan
+3	GDN	Gdansk
+9	AAA	Frankfurt
+10	AAA	Goleniow
+\.
+
+
+--
+-- Data for Name: osoba; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.osoba (osoba_id, imie, nazwisko, pesel, nr_tel, wiek) FROM stdin;
+1	Jan	Kowalski	12345678901	123456789	35
+2	Anna	Nowak	23456789012	987654321	19
+3	Adam	Smith	34567890123	456789123	40
+4	Katarzyna	Wójcik	45678901234	789123456	38
+5	Piotr	Nowicki	56789012345	321654987	23
+6	user	userowski	\N	\N	100
+7	user	userowski	\N	\N	100
+8	user	userowski	\N	\N	100
+9	user	userowski	\N	\N	35
+10	user	userowski	\N	\N	35
+11	user	userowski	\N	\N	35
+12	user	userowski	\N	\N	35
+13	user	userowski	\N	\N	35
+14	user	userowski	\N	\N	35
+24	bb	bb	\N	\N	22
+25	adam	malysz	\N	\N	45
+26	test	wa	\N	\N	35
+\.
+
+
+--
+-- Data for Name: pasazer; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.pasazer (pasazer_id, bilet_id, siedzenie_id, imie, nazwisko, wiek) FROM stdin;
+1	1	1	Jan	Kowalski	35
+2	2	2	Anna	Nowak	45
+3	3	3	Michał	Wójcik	28
+4	4	4	Katarzyna	Lewandowska	62
+5	5	5	Piotr	Szymański	19
+49	46	125	adam	malysz	45
+50	46	126	s	s	1
+51	46	127	ss	s	1
+52	46	128	s	s	1
+\.
+
+
+--
+-- Data for Name: pasazer_uslugi_dodatkowe; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.pasazer_uslugi_dodatkowe (pasazer_uslugi_dodatkowe_id, pasazer_id, id_uslugi) FROM stdin;
+\.
+
+
+--
+-- Data for Name: role; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.role (rola_id, nazwa) FROM stdin;
+1	Administrator
+2	Pracownik
+3	Klient
+4	Moderator
+5	Gość
+\.
+
+
+--
+-- Data for Name: role_uprawnienia; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.role_uprawnienia (rolerola_id, uprawnieniauprawnienia_id) FROM stdin;
+1	1
+2	2
+3	3
+4	4
+5	5
+\.
+
+
+--
+-- Data for Name: samolot; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.samolot (samolot_id, model, linia_lotnicza, liczba_miejsc) FROM stdin;
+1	Boeing 747	Lufthansa	500
+2	Airbus A320	Ryanair	180
+3	Embraer E195	LOT	120
+4	Boeing 787	British Airways	250
+5	Airbus A380	Emirates	600
+6	boeing 747-800	LOT	400
+7	boeing 747-800	LOT	400
+8	boeing 747-800	LOT	400
+9	boeing 747-800	LOT	400
+10	boeing 747-800	LOT	400
+11	boeing 747-800	LOT	400
+12	boeing 747-800	LOT	400
+13	boeing 747-800	LOT	400
+\.
+
+
+--
+-- Data for Name: siedzenie; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.siedzenie (siedzenie_id, samolot_id, nazwa_siedzenia, status) FROM stdin;
+1	1	A1	wolne
+2	1	B2	wolne
+3	2	C3	wolne
+4	2	D4	wolne
+5	3	E5	wolne
+6	1	A2	wolne
+7	1	A3	wolne
+8	1	A4	wolne
+9	1	A5	wolne
+10	1	B1	wolne
+11	1	B2	wolne
+12	1	B3	wolne
+13	1	B4	wolne
+14	1	B5	wolne
+15	1	C1	wolne
+16	1	C2	wolne
+17	1	C3	wolne
+18	1	C4	wolne
+19	1	C5	wolne
+125	13	A1	\N
+126	13	C1	\N
+127	13	C2	\N
+128	13	C3	\N
+129	13	C4	\N
+130	13	C5	\N
+131	13	A2	\N
+132	13	B3	\N
+133	13	B5	\N
+134	13	B2	\N
+135	13	B1	\N
+136	13	A5	\N
+137	13	A3	\N
+138	13	A4	\N
+139	13	B4	\N
+\.
+
+
+--
+-- Data for Name: uprawnienia; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.uprawnienia (uprawnienia_id, kod, nazwa, opis) FROM stdin;
+1	USER_CREATE	Tworzenie użytkowników	Uprawnienie umożliwiające tworzenie nowych użytkowników w systemie.
+2	USER_EDIT	Edycja użytkowników	Uprawnienie umożliwiające edycję danych istniejących użytkowników.
+3	USER_DELETE	Usuwanie użytkowników	Uprawnienie umożliwiające usuwanie użytkowników z systemu.
+4	USER_VIEW	Przeglądanie użytkowników	Uprawnienie umożliwiające przeglądanie danych użytkowników.
+5	USER_ROLE_MANAGE	Zarządzanie rolami użytkowników	Uprawnienie umożliwiające zarządzanie rolami przypisanymi do użytkowników.
+\.
+
+
+--
+-- Data for Name: uslugi_dodatkowe; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.uslugi_dodatkowe (id_uslugi, nazwa, cena) FROM stdin;
+1	Dodatkowy bagaż	250
+2	Wybranie miejsca	64
+3	Przewóz zwierząt	100
+4	Priorytet wejścia na pokład	120
+5	Bezpłatna zmiana lotu	99
+\.
+
+
+--
+-- Data for Name: uzytkownik; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.uzytkownik (uzytkownik_id, id_osoba, email, haslo, salt, jwt) FROM stdin;
+1	1	jan.kowalski@example.com	haslo123	\N	\N
+2	2	anna.nowak@example.com	password456	\N	\N
+3	3	adam.smith@example.com	securepass789	\N	\N
+4	4	katarzyna.wojcik@example.com	secret123	\N	\N
+5	5	piotr.nowicki@example.com	mypassword987	\N	\N
+10	14	user123@gmail.com	$2b$10$d.Vqt2Vuj5/XnPgcaklx3.kTrvgjdw/OPIOUowKIShmjCd880utSS	$2b$10$d.Vqt2Vuj5/XnPgcaklx3.	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXIxMjNAZ21haWwuY29tIiwiaWF0IjoxNjg2MTM5NDc4LCJleHAiOjE2ODY0OTk0Nzh9.Szk2q1LmzNMkkStT_6Sy-Ek8zOCGAXyWlF_fXm7SVnw
+21	25	am@gmail.com	$2b$10$3QFRhh49J5qOutWQ4YzlsOvCTDPqHgviaEuNbBJB3smoEB.RHrlQi	$2b$10$3QFRhh49J5qOutWQ4YzlsO	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW1pZSI6ImFkYW0iLCJ1c2VyTmF6d2lza28iOiJtYWx5c3oiLCJ1c2VyV2llayI6IjQ1IiwidXNlckVtYWlsIjoiYW1AZ21haWwuY29tIiwiaWF0IjoxNjg2NDAyNzU4LCJleHAiOjE2ODY3NjI3NTh9.xCS0nKOFHbon3gVwGoRabzS7PN5O1xyEXxjYOF50_5U
+20	24	bb@gmail.com	$2b$10$Cn.91mRiJ2WkPsyYUSESMeimyfGaJ/w/7bRmcW3QzfGJ1.Jv.mxUi	$2b$10$Cn.91mRiJ2WkPsyYUSESMe	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW1pZSI6ImJiIiwidXNlck5hendpc2tvIjoiYmIiLCJ1c2VyV2llayI6IjIyIiwidXNlckVtYWlsIjoiYmJAZ21haWwuY29tIiwiaWF0IjoxNjg2NDE1ODM5LCJleHAiOjE2ODY3NzU4Mzl9.QIiAH9pA_H_bo2dnUHVlxT1BuvQEjxtv92RuTR9a0lU
+22	26	tt	$2b$10$jj7rWj60HvcdL2LKZOzCGeLK9UTn60OkWh0FFxnl91LmFx47FKzQK	$2b$10$jj7rWj60HvcdL2LKZOzCGe	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW1pZSI6InRlc3QiLCJ1c2VyTmF6d2lza28iOiJ3YSIsInVzZXJXaWVrIjoiMzUiLCJ1c2VyRW1haWwiOiJ0dCIsImlhdCI6MTY4NjQxNjI1MSwiZXhwIjoxNjg2Nzc2MjUxfQ.5SYM2mLuhRtEHFGht_4oYLSDZ7LMFxwN13ntlhQX77o
+\.
+
+
+--
+-- Data for Name: uzytkownik_role; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.uzytkownik_role (uzytkownikuzytkownik_id, rolerola_id) FROM stdin;
+1	1
+2	2
+3	1
+4	3
+5	2
+\.
+
+
+--
+-- Data for Name: zaloga; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.zaloga (zaloga_id, ilosc_osob) FROM stdin;
+1	5
+2	8
+3	4
+4	6
+5	10
+\.
+
+
+--
+-- Data for Name: zaloga_uzytkownik; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.zaloga_uzytkownik (zalogazaloga_id, uzytkownikuzytkownik_id) FROM stdin;
+1	1
+2	2
+3	3
+4	4
+5	5
+\.
+
+
+--
+-- Data for Name: znizka; Type: TABLE DATA; Schema: public; Owner: dzang
+--
+
+COPY public.znizka (znizka_id, wartosc, nazwa) FROM stdin;
+1	10	Studencka
+2	20	Seniora
+3	5	Promocyjna
+4	15	Rodzinna
+5	8	Weterana
+\.
+
+
+--
+-- Name: bagaz_bagaz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.bagaz_bagaz_id_seq', 1, false);
+
+
+--
+-- Name: bagaz_pasazer_bagaz_pasazer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.bagaz_pasazer_bagaz_pasazer_id_seq', 23, true);
+
+
+--
+-- Name: bilet_bilet_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.bilet_bilet_id_seq', 46, true);
+
+
+--
+-- Name: cennik_cennik_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.cennik_cennik_id_seq', 4, true);
+
+
+--
+-- Name: lot_lot_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.lot_lot_id_seq', 20, true);
+
+
+--
+-- Name: lotnisko_lotnisko_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.lotnisko_lotnisko_id_seq', 10, true);
+
+
+--
+-- Name: osoba_osoba_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.osoba_osoba_id_seq', 26, true);
+
+
+--
+-- Name: pasazer_pasazer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.pasazer_pasazer_id_seq', 52, true);
+
+
+--
+-- Name: pasazer_uslugi_dodatkowe_pasazer_uslugi_dodatkowe_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.pasazer_uslugi_dodatkowe_pasazer_uslugi_dodatkowe_id_seq', 4, true);
+
+
+--
+-- Name: role_rola_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.role_rola_id_seq', 5, true);
+
+
+--
+-- Name: samolot_samolot_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.samolot_samolot_id_seq', 13, true);
+
+
+--
+-- Name: siedzenie_siedzenie_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.siedzenie_siedzenie_id_seq', 139, true);
+
+
+--
+-- Name: uprawnienia_uprawnienia_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.uprawnienia_uprawnienia_id_seq', 5, true);
+
+
+--
+-- Name: uslugi_dodatkowe_id_uslugi_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.uslugi_dodatkowe_id_uslugi_seq', 1, false);
+
+
+--
+-- Name: uzytkownik_uzytkownik_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.uzytkownik_uzytkownik_id_seq', 22, true);
+
+
+--
+-- Name: zaloga_zaloga_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.zaloga_zaloga_id_seq', 5, true);
+
+
+--
+-- Name: znizka_znizka_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dzang
+--
+
+SELECT pg_catalog.setval('public.znizka_znizka_id_seq', 1, false);
+
+
+--
 -- Name: adres adres_pkey; Type: CONSTRAINT; Schema: public; Owner: dzang
 --
 
