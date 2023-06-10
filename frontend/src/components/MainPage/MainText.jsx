@@ -19,9 +19,9 @@ export default function MainText() {
         fontSize="4rem"
       >
         Port Lotniczy Gdańsk
-        <Typography variant="subtitle2" align="center">
-          Fly now with
+        <Typography variant="subtitle1" align="center">
           <span style={{ fontWeight: "bold" }}>
+            Fly now with
             <span style={{ color: orange[600] }}> IDA'KA</span> SYSTEMS{" "}
           </span>
         </Typography>

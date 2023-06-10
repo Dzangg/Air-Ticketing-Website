@@ -14,13 +14,14 @@ function Root() {
     <>
       <div
       // style={{
-      //   backgroundImage: "url(/img/background-airplane.jpg)",
+      //   backgroundImage: "url(/img/samolot.jpg)",
       //   height: "100vh",
       //   overflowY: "hidden",
       //   position: "fixed",
       //   width: "100%",
-      //   backgroundSize: "cover", // Scale the background image to cover the entire div
-      //   backgroundPosition: "center", // Center the background image
+      //   backgroundSize: "170%", // Scale the background image to cover the entire div
+      //   // backgroundPosition: "right 10% bottom 40%", // Center the background image
+      //   backgroundSize: "cover",
       //   left: 0,
       // }}
       >
