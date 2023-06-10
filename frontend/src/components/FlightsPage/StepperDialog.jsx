@@ -705,14 +705,6 @@ export default function StepperDialog(props) {
               >
                 {activeStep === steps.length - 1 ? "Potwierdź" : "Dalej"}
               </Button>
-              <Button
-                onClick={() => {
-                  console.log(passengersData);
-                  s();
-                }}
-              >
-                test
-              </Button>
             </Box>
           </React.Fragment>
         )}
