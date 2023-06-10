@@ -108,7 +108,7 @@ export default function UserTickets(props) {
                         {ticket.passengerData.map((person, index) => {
                           return (
                             <>
-                              <Typography variant="h2">
+                              <Typography variant="h4">
                                 {"Pasażer " + (index + 1)}
                               </Typography>
                               <Grid container direction="row">
