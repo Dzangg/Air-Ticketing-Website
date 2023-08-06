@@ -1,4 +1,4 @@
-# IO-Project
+# Air ticketing website
 
 Air ticketing system functionality in Reactjs with MUI.
 
