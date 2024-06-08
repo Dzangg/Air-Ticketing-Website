@@ -1,10 +1,7 @@
-Zakładam, że masz gita na kompie.
-https://github.com/dzangg
-
 1. Pobierz i zainstaluj postgresql & pgadmin4:
 https://sbp.enterprisedb.com/getfile.jsp?fileid=1258514
 - odznacz stack builder a resztę przeklikaj defaultowo,
-- haslo ustaw najlepeij na 123
+- ustaw haslo
 
 https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v7.1/windows/pgadmin4-7.1-x64.exe
 
@@ -16,14 +13,14 @@ https://nodejs.org/dist/v18.16.0/node-v18.16.0-x64.msi
 https://releases.hyper.is/download/win
 
 5. Sklonownaie repo
-git clone https://github.com/Dzangg/IO-Project.git
+git clone https://github.com/Dzangg/Air-Ticketing-Website.git
 
 6. Włączanie psql shell
 - wpisujesz i wybierasz psql shell w wyszukiwarce windowsa
-- wpisujesz wcześniej ustalone hasło przy instalacji postgresql (123), a resztę przeklikujesz
+- wpisujesz wcześniej ustalone hasło przy instalacji postgresql (haslo), a resztę przeklikujesz
 - wpiszujesz komendy będąc zalogowanym: (dzang możesz zamienić na coś innego)
 create database maindb;
-create user dzang with encrypted password '123';
+create user dzang with encrypted password 'haslo';
 grant all privileges on database maindb to dzang;
 alter user dzang with superuser;
 
@@ -32,7 +29,7 @@ alter user dzang with superuser;
 psql -U dzang maindb < C:\Users\Bartek\Documents\IO-Project\project_template\export.sql
 - odpalasz pgadmin4 logujesz sie i sprawdzasz czy działa baza.
 
-7. Odpalanie servea backend i frontend
+7. Odpalanie servera backend i frontend
 - odpalasz dwa terminale hyper, jeden w folderze backend projektu drugi w frontend
 - w pierwszym piszesz:
 npm install
@@ -41,6 +38,3 @@ nodemon server.js
 - w drugim piszesz:
 npm install
 npm run dev
-
-
-ez
