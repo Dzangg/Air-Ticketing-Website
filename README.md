@@ -12,7 +12,7 @@ The Air Ticketing Website Prototype project is a small web application built usi
 ## Technologies Used
 
 - **React.js**: A JavaScript library for building user interfaces.
-- - **Vite**: A fast build tool for modern web development.
+- **Vite**: A fast build tool for modern web development.
 - **Material-UI (MUI)**: A popular React UI framework for building responsive web applications.
 - **PostgreSQL**: A powerful, open-source relational database system.
 
@@ -34,7 +34,7 @@ To run the Air Ticketing Website locally, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/air-ticketing-website.git
+   git clone https://github.com/Dzangg/air-ticketing-website.git
    cd air-ticketing-website
    ```
 2. **Continue with instructions**:
